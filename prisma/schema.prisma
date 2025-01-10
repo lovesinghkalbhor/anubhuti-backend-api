@@ -1,0 +1,57 @@
+
+
+generator client {
+  provider = "prisma-client-js"
+
+
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model User {
+    id         Int     @id @default(autoincrement())
+    name       String
+    adhar_card String  @unique
+    mobile     String  @unique
+    email      String?
+    password   String
+    refreshToken String?
+    created_at DateTime @default(now())
+    // Relationship with Donation
+    donations     Donation[] 
+}
+
+
+model Donation {
+  id                 Int       @id @default(autoincrement())
+  receiptNo          Int      @unique  
+  date               DateTime  @default(now())
+  authorizedPerson   User   @relation(fields: [authorizedPersonId], references: [id])
+  authorizedPersonName String
+  authorizedPersonId   Int
+
+  donorName          String
+  aadhar             String?
+  pan                String?
+  phoneNumber        String
+  address            String
+
+  amount             Int?      // Amount donated (if it's a monetary donation)
+  items              Item[]   // Array of items donated (if it's an item donation)
+
+  purpose            String
+  websiteDetails     String    @default("anubhuti.com")
+}
+
+model Item {
+  id         Int      @id @default(autoincrement())
+  name       String   // Name of the donated item
+  quantity   String      // Quantity of the donated item
+  donation   Donation @relation(fields: [donationId], references: [id])
+  donationId Int      // Foreign key to link with Donation model
+}
