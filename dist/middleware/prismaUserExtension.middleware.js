@@ -15,7 +15,6 @@ exports.userExtensions = client_1.Prisma.defineExtension((client) => {
                     const user = await client.user.findUnique({
                         where: { id: userId },
                     });
-                    console.log(password, user?.password);
                     if (!user || !user.password)
                         throw new Error("User not found or password not set");
                     return bcrypt_1.default.compare(password, user.password);

@@ -44,7 +44,6 @@ const viewInvoice = asyncHandler(async (req: Request, res: Response) => {
         new ApiResponse(401, {}, "Donor not found,can not generate reciept")
       );
   }
-  console.log(results);
 
   res.render("invoice", {
     donation: results,

@@ -14,9 +14,6 @@ class ApiErrors extends Error {
     errors = [],
     stack = ""
   ) {
-    console.log(
-      "in this lvoegggggggggggggg \n llllllllllllllllllllll\n33333333333333333333333333\n333333333333333333333333333333\n33333333333333333"
-    );
     super(message);
     this.statusCode = statusCode;
     this.data = null;

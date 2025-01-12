@@ -1,4 +1,4 @@
-export function numberToWords(num: number): string {
+function numberToWords(num: number): string {
   if (num === 0) return "zero";
 
   const belowTwenty = [
@@ -59,3 +59,22 @@ export function numberToWords(num: number): string {
 
   return word.trim();
 }
+
+const filteredMissingFieldsObjectFromItems = (items: any[]) => {
+  const itemsArray = items.filter((item) => {
+    const isNameEmpty = !item.name || String(item.name).trim() === "";
+    const isQuantityEmpty =
+      !item.quantity || String(item.quantity).trim() === "";
+
+    // If one of the fields is empty, show notification and exit
+    if (isNameEmpty !== isQuantityEmpty) {
+      return false; // This ensures we skip processing further
+    } else if (isNameEmpty == true && isQuantityEmpty == true) {
+      return false; // This ensures we skip processing further
+    }
+    return true;
+  });
+  return itemsArray;
+};
+
+export { filteredMissingFieldsObjectFromItems, numberToWords };

@@ -19,12 +19,9 @@ userRouter.route("/register").post(registerUser);
 userRouter.route("/logout").post(verifyJWT, logoutUser);
 userRouter.route("/changePassword").put(verifyJWT, changePassword);
 userRouter.route("/updateUser").put(verifyJWT, updateUser);
-userRouter.route("/user").get(verifyJWT, getUser);
+userRouter.route("/userById").get(verifyJWT, getUser);
 userRouter.route("/refreshToken").get(verifyRefressJWT, authoriseRefreshToken);
 userRouter.route("/isValid").get(verifyJWT, (req, res) => {
-  console.log(
-    " here is in the valid function\n llllllllllllllllllllll\n33333333333333333333333333\n333333333333333333333333333333\n33333333333333333"
-  );
   res.status(200).json(new ApiResponse(200, {}, "Token is valid"));
 });
 

@@ -5,7 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse";
 import { User, Donation } from "@prisma/client";
 import prisma from "../utils/prismaObject";
 import { sendMessage } from "../utils/sendingSMS";
-
+import { filteredMissingFieldsObjectFromItems } from "../utils/helperFunction";
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,6 +85,8 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
       );
   }
 
+  const filterItems = filteredMissingFieldsObjectFromItems(items);
+
   // Generate receipt number
   const lastDonation = await prisma.donation.findFirst({
     orderBy: { receiptNo: "desc" },
@@ -111,12 +113,14 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
       address,
       amount: Number(amount),
       purpose,
-      items: items
+      items: filterItems
         ? {
-            create: items.map((item: { name: string; quantity: string }) => ({
-              name: item.name,
-              quantity: Number(item.quantity),
-            })),
+            create: filterItems.map(
+              (item: { name: string; quantity: string }) => ({
+                name: item.name,
+                quantity: String(item.quantity),
+              })
+            ),
           }
         : undefined,
     },
@@ -132,23 +136,10 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
   }
 
   // Send invoice link
-  try {
-    await sendMessage(
-      `Download your donation receipt: http://localhost:3000/api/v1/viewInvoice/downloadInvoice?receiptNo=${donation.receiptNo}`
-    );
-  } catch (error) {
-    console.error("Failed to send invoice message twilio");
-    // Continue with response as message sending is not critical
-    return res
-      .status(500) // Created - successful resource creation
-      .json(
-        new ApiResponse(
-          500,
-          donation,
-          "Donation recorded successfully. Receipt has been sent."
-        )
-      );
-  }
+
+  await sendMessage(
+    `Download your donation receipt: http://localhost:3000/api/v1/viewInvoice/downloadInvoice?receiptNo=${donation.receiptNo}`
+  );
 
   // Respond with the created donation record
 

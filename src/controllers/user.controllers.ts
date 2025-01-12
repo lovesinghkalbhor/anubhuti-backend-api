@@ -171,7 +171,6 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
 const logoutUser = asyncHandler(async (req: Request, res: Response) => {
   const userId = (req as Request & { user: any }).user.id;
 
-  console.log("1 here is logout function ");
   // Clear tokens from the database
   const user = await prisma.user.update({
     where: { id: userId },
@@ -179,17 +178,12 @@ const logoutUser = asyncHandler(async (req: Request, res: Response) => {
   });
 
   if (!user) {
-    console.log(
-      "2 here is logout function \n llllllllllllllllllllll\n33333333333333333333333333\n333333333333333333333333333333\n33333333333333333"
-    );
-
     return res
       .status(500) // Internal Server Error
       .json(new ApiResponse(500, "", "Something went wrong, Please try again"));
   }
 
   // Clear tokens from cookies
-  console.log("3 here is in the logout function ");
 
   return res
     .status(200)
