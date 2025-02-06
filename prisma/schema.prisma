@@ -44,14 +44,18 @@ model Donation {
   amount             Int?      // Amount donated (if it's a monetary donation)
   items              Item[]   // Array of items donated (if it's an item donation)
 
+  paymentMethod      String  @default("Unknown")  // Provide a default value
+  donationCategory   String  @default("OTHER")  // Provide a default value
   purpose            String
   websiteDetails     String    @default("anubhuti.com")
 }
+
 
 model Item {
   id         Int      @id @default(autoincrement())
   name       String   // Name of the donated item
   quantity   String      // Quantity of the donated item
+  approxAmount   Int      @default(0)  // Provide a default value
   donation   Donation @relation(fields: [donationId], references: [id])
   donationId Int      // Foreign key to link with Donation model
 }

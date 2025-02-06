@@ -6,6 +6,11 @@ import { User, Donation } from "@prisma/client";
 import prisma from "../utils/prismaObject";
 import { sendMessage } from "../utils/sendingSMS";
 import { filteredMissingFieldsObjectFromItems } from "../utils/helperFunction";
+import {
+  DonationCategory,
+  PaymentMethod,
+  SearchPaginationParams,
+} from "../types/types";
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -27,6 +32,8 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
     phoneNumber,
     amount,
     purpose,
+    paymentMethod,
+    donationCategory,
   } = req.body;
 
   // Validate basic required fields
@@ -84,7 +91,48 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
         )
       );
   }
+  if (!Array.isArray(items)) {
+    return res
+      .status(400)
+      .json(new ApiResponse(400, "", "items should be an array"));
+  }
 
+  // check if donationCategory is valid
+  if (!(donationCategory in DonationCategory)) {
+    return res
+      .status(400)
+      .json(
+        new ApiResponse(
+          400,
+          "",
+          "Donation Category must be valid, SCHOOL_HOSTEL_OPERATIONS, LIFETIME_MEMBERSHIP,LIFETIME_LUNCH, IN_KIND, LAND_AND_BUILDING, OTHER"
+        )
+      );
+  }
+
+  // CHECK correct payment method
+  if (!(paymentMethod in PaymentMethod) && !paymentMethod.startsWith("DD")) {
+    return res
+      .status(400)
+      .json(
+        new ApiResponse(
+          400,
+          null,
+          "Invalid payment method, Valid payment methods: CASH, UPI, DD, CHEQUE"
+        )
+      );
+  }
+  if (paymentMethod.startsWith("DD")) {
+    const ddNumber = paymentMethod.split("-")[1]; // Extract the number part
+
+    if (!/^\d+$/.test(ddNumber)) {
+      return res
+        .status(400)
+        .json(new ApiResponse(400, null, "Invalid DD number"));
+    }
+  }
+
+  // fileter the valid item in kind
   const filterItems = filteredMissingFieldsObjectFromItems(items);
 
   // Generate receipt number
@@ -93,12 +141,6 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
   });
 
   const receiptNo = lastDonation ? lastDonation.receiptNo + 1 : 1; // Increment receipt number or start with 1
-
-  if (!Array.isArray(items)) {
-    return res
-      .status(400)
-      .json(new ApiResponse(400, "", "items should be an array"));
-  }
 
   // Create a new donation record
   const donation = await prisma.donation.create({
@@ -113,12 +155,20 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
       address,
       amount: Number(amount),
       purpose,
+      paymentMethod,
+      donationCategory:
+        DonationCategory[donationCategory as keyof typeof DonationCategory],
       items: filterItems
         ? {
             create: filterItems.map(
-              (item: { name: string; quantity: string }) => ({
+              (item: {
+                name: string;
+                quantity: string;
+                approxAmount: number;
+              }) => ({
                 name: item.name,
                 quantity: String(item.quantity),
+                approxAmount: item.approxAmount,
               })
             ),
           }
@@ -157,11 +207,7 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
-interface SearchPaginationParams {
-  page: number;
-  limit: number;
-  skip: number;
-}
+
 const getPaginationParams = (query: any): SearchPaginationParams => {
   const page = Math.max(1, parseInt(query.page as string) || 1);
   const limit = Math.max(
@@ -251,7 +297,6 @@ const searchDonorByDetails = asyncHandler(
   async (req: Request, res: Response) => {
     const { search } = req.query;
     const { page, limit, skip } = getPaginationParams(req.query);
-
     // Validate search parameter
     if (!search || typeof search !== "string" || !search.trim()) {
       return res
@@ -280,6 +325,7 @@ const searchDonorByDetails = asyncHandler(
     const totalDonors = await prisma.donation.count({
       where: whereClause,
     });
+    console.log(skip, limit, page);
 
     // Query the database with pagination
     const donations = await prisma.donation.findMany({
@@ -305,6 +351,7 @@ const searchDonorByDetails = asyncHandler(
         },
       },
     });
+    console.log(donations);
 
     const totalPages = Math.ceil(totalDonors / limit);
     const hasMore = page < totalPages;
@@ -353,69 +400,134 @@ const searchDonorByDetails = asyncHandler(
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
-// const searchDonationsByDate = asyncHandler(
-//   async (req: Request, res: Response) => {
-//     const { startDate, endDate } = req.query;
 
-//     // Validate date range inputs
-//     if (!startDate || !endDate) {
-//       return res
-//         .status(400)
-//         .json(
-//           new ApiResponse(400, "", "Please provide both startDate and endDate.")
-//         );
-//     }
+const filterDonation = asyncHandler(async (req: Request, res: Response) => {
+  const { paymentMethod = "", donationCategory = "" } = req.query;
+  const { page, limit, skip } = getPaginationParams(req.query);
 
-//     const start = new Date(startDate as string);
-//     const end = new Date(endDate as string);
+  if (paymentMethod == "" && donationCategory == "") {
+    return res
+      .status(422)
+      .json(new ApiResponse(422, null, "Please provide a valid filter"));
+  }
+  // Validate search parameter by donation category]
+  console.log(donationCategory);
+  if (
+    !((donationCategory as string) in DonationCategory) &&
+    donationCategory != ""
+  ) {
+    return res
+      .status(422)
+      .json(
+        new ApiResponse(
+          422,
+          null,
+          "Please provide a valid filter (SCHOOL_HOSTEL_OPERATIONS,LIFETIME_MEMBERSHIP,LIFETIME_LUNCH,IN_KIND,LAND_AND_BUILDING,OTHER)"
+        )
+      );
+  }
+  if (!((paymentMethod as string) in PaymentMethod) && paymentMethod != "") {
+    return res
+      .status(422)
+      .json(
+        new ApiResponse(
+          422,
+          null,
+          "Please provide a valid filter (UPI,DD,CASH,CHEQUE)"
+        )
+      );
+  }
 
-//     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-//       return res
-//         .status(400)
-//         .json(
-//           new ApiResponse(
-//             400,
-//             "",
-//             "Invalid date format. Please use YYYY-MM-DD format."
-//           )
-//         );
-//     }
+  // Build the where clause dynamically
+  const whereClause = {
+    AND: [
+      {
+        donationCategory:
+          DonationCategory[
+            (donationCategory as string).trim() as keyof typeof DonationCategory
+          ],
+      },
+      {
+        paymentMethod:
+          PaymentMethod[
+            (paymentMethod as string).trim() as keyof typeof PaymentMethod
+          ],
+      },
+    ],
+  };
 
-//     if (start > end) {
-//       return res
-//         .status(400)
-//         .json(
-//           new ApiResponse(400, "", "startDate cannot be later than endDate.")
-//         );
-//     }
+  // Get total count for pagination
+  const totalDonors = await prisma.donation.count({
+    where: whereClause,
+  });
 
-//     // Query the database
-//     const donations = await prisma.donation.findMany({
-//       where: {
-//         date: {
-//           gte: start,
-//           lte: end,
-//         },
-//       },
-//     });
+  // Query the database with pagination
+  const donations = await prisma.donation.findMany({
+    where: whereClause,
+    skip,
+    take: limit,
+    orderBy: {
+      date: "desc",
+    },
 
-//     if (donations.length === 0) {
-//       return res
-//         .status(400)
-//         .json(
-//           new ApiResponse(
-//             400,
-//             "",
-//             "No donations found for the given date range."
-//           )
-//         );
-//     }
+    select: {
+      receiptNo: true,
+      date: true,
+      authorizedPerson: true,
+      donorName: true,
+      phoneNumber: true,
+      amount: true,
+      items: true,
+      _count: {
+        select: { items: true },
+      },
+    },
+  });
 
-//     return res
-//       .status(200)
-//       .json(new ApiResponse(200, donations, "Donations fetched successfully"));
-//   }
-// );
+  const totalPages = Math.ceil(totalDonors / limit);
+  const hasMore = page < totalPages;
+
+  // No results found
+  if (donations.length === 0) {
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          donations: [],
+          pagination: {
+            currentPage: page,
+            totalPages,
+            totalItems: totalDonors,
+            hasMore: false,
+          },
+        },
+        "No donor records found for the given search term"
+      )
+    );
+  }
+
+  // Success response
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        donations,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems: totalDonors,
+          hasMore,
+        },
+      },
+      "Donor records fetched successfully"
+    )
+  );
+});
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+
 const searchDonationsByDate = asyncHandler(
   async (req: Request, res: Response) => {
     const { startDate, endDate } = req.query;
@@ -540,6 +652,97 @@ const searchDonationsByDate = asyncHandler(
   }
 );
 
+const calculateDonationsByDate = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { startDate, endDate } = req.query;
+    // const { page, limit, skip } = getPaginationParams(req.query);
+
+    // Validate date parameters
+    if (!startDate || !endDate) {
+      return res
+        .status(422)
+        .json(
+          new ApiResponse(
+            422,
+            null,
+            "Both startDate and endDate are required (format: YYYY-MM-DD)"
+          )
+        );
+    }
+
+    // Parse and validate dates
+    const start = new Date(startDate as string);
+    const end = new Date(endDate as string);
+    end.setHours(23, 59, 59, 999); // Include the entire end date
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res
+        .status(422)
+        .json(
+          new ApiResponse(
+            422,
+            null,
+            "Invalid date format. Please use YYYY-MM-DD format"
+          )
+        );
+    }
+
+    if (start > end) {
+      return res
+        .status(422)
+        .json(
+          new ApiResponse(
+            422,
+            null,
+            "Start date must be earlier than or equal to end date"
+          )
+        );
+    }
+
+    const whereClause = {
+      date: {
+        gte: start,
+        lte: end,
+      },
+    };
+
+    // Query the database with pagination
+    const donations = await prisma.donation.aggregate({
+      where: whereClause,
+
+      _sum: {
+        amount: true,
+      },
+    });
+
+    // No results found
+    if (!donations) {
+      return res.status(200).json(
+        new ApiResponse(
+          200,
+          {
+            totalDonations: null,
+            dateRange: { startDate, endDate },
+          },
+          "No donations found for the given date range"
+        )
+      );
+    }
+
+    // Success response
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          totalDonations: donations?._sum?.amount ?? null,
+          dateRange: { startDate, endDate },
+        },
+        "Donations fetched successfully"
+      )
+    );
+  }
+);
+
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
@@ -571,4 +774,6 @@ export {
   getDonationById,
   searchDonorByDetails,
   searchDonationsByDate,
+  calculateDonationsByDate,
+  filterDonation,
 };

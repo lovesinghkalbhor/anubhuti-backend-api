@@ -14,7 +14,15 @@ import { numberToWords } from "../utils/helperFunction";
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
+const formattedName = (authorizedPersonName: string) => {
+  return authorizedPersonName
+    .split(" ")
+    .map(
+      (word: string) =>
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    )
+    .join(" ");
+};
 // ADD DONATION
 const viewInvoice = asyncHandler(async (req: Request, res: Response) => {
   const { receiptNo } = req.query;
@@ -48,6 +56,7 @@ const viewInvoice = asyncHandler(async (req: Request, res: Response) => {
   res.render("invoice", {
     donation: results,
     amountInWords: numberToWords(results?.amount || 0),
+    formattedName: formattedName(results?.authorizedPersonName || ""),
   });
 });
 
@@ -84,7 +93,11 @@ const DownloadInvoice = asyncHandler(async (req: Request, res: Response) => {
   // Render the EJS template with the dynamic data
   res.render(
     ejsTemplatePath,
-    { donation, amountInWords: numberToWords(results?.amount || 0) },
+    {
+      donation,
+      amountInWords: numberToWords(results?.amount || 0),
+      formattedName: formattedName(results?.authorizedPersonName || ""),
+    },
     async (err, htmlContent) => {
       if (err) {
         console.error("Error rendering the EJS template:", err);

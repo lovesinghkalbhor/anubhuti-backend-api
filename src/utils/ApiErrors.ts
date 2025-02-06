@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { ApiResponse } from "./ApiResponse";
+import { JsonWebTokenError } from "jsonwebtoken";
 
 class ApiErrors extends Error {
   statusCode: number;
@@ -70,6 +71,18 @@ const errorHandler = (
       .json(new ApiResponse(400, {}, "Invalid JSON payload"));
   } else {
     console.error("Non-Prisma error:", err);
+    // write a code for add case for jwt errors
+    if (err instanceof JsonWebTokenError) {
+      return res
+        .status(401)
+        .json(
+          new ApiResponse(
+            401,
+            {},
+            "Unauthorized request: Invalid Token or expired. Please login again."
+          )
+        );
+    }
     return res
       .status(500)
       .json(
