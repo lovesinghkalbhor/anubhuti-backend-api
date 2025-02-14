@@ -66,5 +66,5 @@ jobs:
           username: ${{ secrets.ftp_username }}
           password: ${{ secrets.ftp_password }}
           local-dir: ./dist/ # Only upload the compiled TypeScript files
-          server-dir: /home/anubhuti/anubhutivisionss.com/ftp_account_github/ # Change this to your backend directory on cPanel
+          server-dir: / # Change this to your backend directory on cPanel
 
