@@ -18,7 +18,6 @@ import { env } from "node:process";
 // ADD DONATION
 const addDonation = asyncHandler(async (req: Request, res: Response) => {
   const user = (req as Request & { user: any }).user;
-  // console.log(user);
 
   // Extract fields from request body
   const {
