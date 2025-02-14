@@ -34,5 +34,5 @@ jobs:
           server: ${{ secrets.ftp_server }}
           username: ${{ secrets.ftp_username }}
           password: ${{ secrets.ftp_password }}
-          local-dir: ./dist/ # Only upload the compiled TypeScript files
+          local-dir: ./ # Only upload the compiled TypeScript files
           server-dir: / # Change this to your backend directory on cPanel
