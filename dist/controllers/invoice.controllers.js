@@ -49,9 +49,13 @@ const viewInvoice = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         donation: results,
         amountInWords: (0, helperFunction_1.numberToWords)(results?.amount || 0),
         formattedName: formattedName(results?.authorizedPersonName || ""),
+        downloadUrl: process.env.DOWNLOAD_RECEIPT_URL,
     });
 });
 exports.viewInvoice = viewInvoice;
+// ///////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
 const DownloadInvoice = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     // Define the path to the EJS template
     const ejsTemplatePath = path_1.default.join(__dirname, "../../views/downloadableInvoice.ejs");

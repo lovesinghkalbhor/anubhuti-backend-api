@@ -57,9 +57,13 @@ const viewInvoice = asyncHandler(async (req: Request, res: Response) => {
     donation: results,
     amountInWords: numberToWords(results?.amount || 0),
     formattedName: formattedName(results?.authorizedPersonName || ""),
+    downloadUrl: process.env.DOWNLOAD_RECEIPT_URL,
   });
 });
 
+// ///////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
 const DownloadInvoice = asyncHandler(async (req: Request, res: Response) => {
   // Define the path to the EJS template
   const ejsTemplatePath = path.join(
