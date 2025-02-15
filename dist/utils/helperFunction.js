@@ -62,16 +62,16 @@ function numberToWords(num) {
 }
 const filteredMissingFieldsObjectFromItems = (items) => {
     const itemsArray = items.filter((item) => {
-        const isNameEmpty = !item.name || String(item.name).trim() === "";
-        const isQuantityEmpty = !item.quantity || String(item.quantity).trim() === "";
+        const isNameEmpty = String(item.name).trim();
+        const isQuantityEmpty = String(item.quantity).trim();
+        const isApproxamount = +item.approxAmount >= 0;
         // If one of the fields is empty, show notification and exit
-        if (isNameEmpty !== isQuantityEmpty) {
+        if (!isNameEmpty || !isQuantityEmpty || !isApproxamount) {
             return false; // This ensures we skip processing further
         }
-        else if (isNameEmpty == true && isQuantityEmpty == true) {
-            return false; // This ensures we skip processing further
+        else {
+            return true; // This ensures we skip processing further
         }
-        return true;
     });
     return itemsArray;
 };
