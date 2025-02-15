@@ -256,17 +256,14 @@
       </div>
     </form>
 
-    <button onclick="downloadPDFButton(`<%= donation.receiptNo %>`)">
+    <button
+      onclick="downloadPDFButton(`<%= downloadUrl %>`, `<%= donation.receiptNo %>`)"
+    >
       Download as PDF
     </button>
-    <!-- <script>
-      function downloadPDF() {
-        window.location.href =
-          "/api/v1/viewInvoice/downloadInvoice?receiptNo=<%=donation.receiptNo%>";
-      }
-    </script> -->
+
     <script>
-      async function downloadPDFButton(receiptNo) {
+      async function downloadPDFButton(downloadUrl, receiptNo) {
         console.log(downloadUrl);
         const pdfUrl = `${downloadUrl}=${receiptNo}`; // Replace with your PDF URL
         const anchor = document.createElement("a");
