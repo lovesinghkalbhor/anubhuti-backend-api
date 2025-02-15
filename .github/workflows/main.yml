@@ -22,11 +22,11 @@ jobs:
       # - name: Install dependencies
       #   run: npm install
 
-      - name: Generate Prisma Client
-        run: npx prisma generate
+      # - name: Generate Prisma Client
+      #   run: npx prisma generate
 
-      - name: 🔨 Build Project
-        run: npm run build
+      # - name: 🔨 Build Project
+      #   run: npm run build
 
       - name: 📂 Sync files via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
