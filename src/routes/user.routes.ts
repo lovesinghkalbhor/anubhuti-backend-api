@@ -15,9 +15,7 @@ import { verifyJWT, verifyRefressJWT } from "../middleware/auth.middleware";
 const userRouter = Router();
 
 userRouter.route("/login").post(loginUser);
-userRouter.route("/random").post((req, res) => {
-  res.status(200).json(new ApiResponse(200, {}, "random user"));
-});
+
 userRouter.route("/register").post(registerUser);
 userRouter.route("/logout").post(verifyJWT, logoutUser);
 userRouter.route("/changePassword").put(verifyJWT, changePassword);
