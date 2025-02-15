@@ -267,10 +267,10 @@
     </script> -->
     <script>
       async function downloadPDFButton(receiptNo) {
+        alert(process.env.DOWNLOAD_RECEIPT_URL);
         const pdfUrl = `${process.env.DOWNLOAD_RECEIPT_URL}=${receiptNo}`; // Replace with your PDF URL
         const anchor = document.createElement("a");
         anchor.href = pdfUrl;
-
         // Append the anchor to the document, trigger the click, then remove it
         document.body.appendChild(anchor);
         anchor.click();
