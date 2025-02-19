@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import { ApiResponse } from "../utils/ApiResponse";
 import { User, Donation } from "@prisma/client";
 import prisma from "../utils/prismaObject";
-// import html_to_pdf from "html-pdf-node";
+import html_to_pdf from "html-pdf-node";
 
 import path from "path";
 import { numberToWords } from "../utils/helperFunction";
@@ -54,6 +54,43 @@ const viewInvoice = asyncHandler(async (req: Request, res: Response) => {
   }
 
   res.render("invoice", {
+    donation: results,
+    amountInWords: numberToWords(results?.amount || 0),
+    formattedName: formattedName(results?.authorizedPersonName || ""),
+    downloadUrl: process.env.DOWNLOAD_RECEIPT_URL,
+  });
+});
+
+const DownloadInvoice = asyncHandler(async (req: Request, res: Response) => {
+  const { receiptNo } = req.query;
+
+  // Validate the phone number
+  if (!receiptNo || typeof receiptNo !== "string") {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Invoice number is required"));
+  }
+
+  // Query the database for the donor by phone number
+  const results = await prisma.donation.findFirst({
+    where: {
+      receiptNo: Number(receiptNo),
+      // Ensure the phone number is treated as a string
+    },
+    include: {
+      items: true,
+    },
+  });
+
+  if (!results) {
+    return res
+      .status(401)
+      .json(
+        new ApiResponse(401, {}, "Donor not found,can not generate reciept")
+      );
+  }
+
+  res.render("downloadableInvoice", {
     donation: results,
     amountInWords: numberToWords(results?.amount || 0),
     formattedName: formattedName(results?.authorizedPersonName || ""),
@@ -154,5 +191,4 @@ const viewInvoice = asyncHandler(async (req: Request, res: Response) => {
 /////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 
-// export { viewInvoice, DownloadInvoice };
-export { viewInvoice };
+export { viewInvoice, DownloadInvoice };
