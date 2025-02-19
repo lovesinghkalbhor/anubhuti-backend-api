@@ -154,4 +154,5 @@ const viewInvoice = asyncHandler(async (req: Request, res: Response) => {
 /////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 
-export { viewInvoice, DownloadInvoice };
+// export { viewInvoice, DownloadInvoice };
+export { viewInvoice };
