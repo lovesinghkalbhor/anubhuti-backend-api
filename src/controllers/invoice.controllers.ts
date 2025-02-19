@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import { ApiResponse } from "../utils/ApiResponse";
 import { User, Donation } from "@prisma/client";
 import prisma from "../utils/prismaObject";
-import html_to_pdf from "html-pdf-node";
+// import html_to_pdf from "html-pdf-node";
 
 import path from "path";
 import { numberToWords } from "../utils/helperFunction";
