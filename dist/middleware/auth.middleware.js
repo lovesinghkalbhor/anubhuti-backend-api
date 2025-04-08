@@ -50,6 +50,7 @@ const verifyJWT = async (req, res, next) => {
     // Pass the error to the next middleware for centralized error handling
 };
 exports.verifyJWT = verifyJWT;
+/////////////////////////////////////////////////////////////////
 const verifyRefressJWT = async (req, res, next) => {
     try {
         // Get ACCESS token from cookies or Authorization header

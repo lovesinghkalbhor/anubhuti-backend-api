@@ -1,7 +1,50 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.filteredMissingFieldsObjectFromItems = void 0;
+exports.validateDonationInput = exports.filteredMissingFieldsObjectFromItems = void 0;
+exports.receiptNoGenerator = receiptNoGenerator;
 exports.numberToWords = numberToWords;
+const types_1 = require("../types/types");
+const ApiResponse_1 = require("../utils/ApiResponse");
+const validateDonationInput = ({ countryCode, phoneNumber, donorName, address, purpose, amount = 0, aadhar, pan, donationCategory = "", paymentMethod = "", donationType = "", items = [], }) => {
+    // Validate items structure
+    if (donationType == "kind") {
+        if (!Array.isArray(items)) {
+            return new ApiResponse_1.ApiResponse(422, null, "Items must be provided as an array");
+        }
+    }
+    else {
+        if (!amount && Number(amount) <= 0) {
+            return new ApiResponse_1.ApiResponse(422, null, "Amount must be a positive number");
+        }
+        if (!(paymentMethod in types_1.PaymentMethod) &&
+            !paymentMethod?.startsWith("DD") &&
+            !paymentMethod?.startsWith("CHEQUE") &&
+            !paymentMethod?.startsWith("UPI")) {
+            return new ApiResponse_1.ApiResponse(400, null, "Invalid payment method. Valid options: CASH, UPI, DD, CHEQUE");
+        }
+        if (paymentMethod?.startsWith("DD")) {
+            const ddNumber = paymentMethod.split("-")[1];
+            if (!/^\d+$/.test(ddNumber)) {
+                return new ApiResponse_1.ApiResponse(400, null, "Invalid DD number");
+            }
+        }
+    }
+    if (!countryCode || !phoneNumber) {
+        return new ApiResponse_1.ApiResponse(400, null, "Kindly enter the correct phone number including the country code");
+    }
+    if (!address || !donorName || !purpose?.trim()) {
+        return new ApiResponse_1.ApiResponse(422, null, "Required fields missing: donor name, address, and purpose are mandatory");
+    }
+    if (!aadhar && !pan) {
+        return new ApiResponse_1.ApiResponse(422, null, "Either Aadhar or PAN number is required for donation");
+    }
+    if (!(donationCategory in types_1.DonationCategory) &&
+        !donationCategory?.startsWith("OTHER")) {
+        return new ApiResponse_1.ApiResponse(400, "", "Donation Category must be valid: SCHOOL_HOSTEL_OPERATIONS, LIFETIME_MEMBERSHIP, LIFETIME_LUNCH, IN_KIND, LAND_AND_BUILDING, OTHER");
+    }
+    return null; // everything is valid
+};
+exports.validateDonationInput = validateDonationInput;
 function numberToWords(num) {
     if (num === 0)
         return "zero";
@@ -76,4 +119,28 @@ const filteredMissingFieldsObjectFromItems = (items) => {
     return itemsArray;
 };
 exports.filteredMissingFieldsObjectFromItems = filteredMissingFieldsObjectFromItems;
+function receiptNoGenerator(lastDonation, donationType) {
+    let lastNumber = 0;
+    if (lastDonation) {
+        let match;
+        if (donationType === "M") {
+            match = lastDonation.match(/^(\d+)M/);
+        }
+        else if (donationType === "K") {
+            match = lastDonation.match(/^(\d+)K/);
+        }
+        if (match) {
+            lastNumber = parseInt(match[1]);
+        }
+    }
+    const newNumber = lastNumber + 1;
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const startYear = currentMonth >= 3 ? currentYear : currentYear - 1;
+    const endYear = startYear + 1;
+    const financialYear = `${startYear}/${endYear}`;
+    const receiptNo = `${newNumber}${donationType}-${financialYear}`;
+    return receiptNo;
+}
 //# sourceMappingURL=helperFunction.js.map

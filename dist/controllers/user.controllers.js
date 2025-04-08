@@ -11,8 +11,10 @@ const ApiResponse_1 = require("../utils/ApiResponse");
 const prismaObject_1 = __importDefault(require("../utils/prismaObject"));
 async function generteAccessAndRefreshToken(user) {
     try {
-        const refreshToken = await prismaObject_1.default.user.generateRefreshToken(user.id);
-        const accessToken = await prismaObject_1.default.user.generateAccessToken(user.id);
+        const [refreshToken, accessToken] = await Promise.all([
+            prismaObject_1.default.user.generateRefreshToken(user),
+            prismaObject_1.default.user.generateAccessToken(user),
+        ]);
         const updateRefreshToken = await prismaObject_1.default.user.update({
             where: {
                 id: user.id,
@@ -32,12 +34,6 @@ async function generteAccessAndRefreshToken(user) {
     }
 }
 const registerUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    // get user details from frontend
-    // validation - not empty
-    // check if user already exists: username, email
-    // create user object - create entry in db
-    // remove password and refresh token field from response
-    // return res
     const { name, adhar_card, mobile, email, password } = req.body;
     if (!name || !adhar_card || !mobile || !password) {
         return res
@@ -46,6 +42,7 @@ const registerUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     }
     const existinguser = await prismaObject_1.default.user.findFirst({
         where: { OR: [{ mobile: mobile }, { adhar_card: adhar_card }] },
+        select: { id: true }, // Only fetch what we need
     });
     if (existinguser) {
         return res
@@ -88,12 +85,6 @@ const registerUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
 });
 exports.registerUser = registerUser;
 ///////////////////////////////////////////////////
-//////////////////////////////////////////////////
-///////////////////////////////////////////////////
-////////////////////////////////////////////////////
-//////////////////////////////////////////////////
-/////////////////////////////////////////////////////
-////////////////////////////////////////////////////
 const loginUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const { mobile, password } = req.body;
     if (!mobile || !password) {
@@ -107,7 +98,7 @@ const loginUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     if (!user) {
         return res.status(404).json(new ApiResponse_1.ApiResponse(404, {}, "User not found"));
     }
-    const isPasswordCorrect = await prismaObject_1.default.user.isPasswordCorrect(user.id, password);
+    const isPasswordCorrect = await prismaObject_1.default.user.isPasswordCorrect(user.password, password);
     if (!isPasswordCorrect) {
         return res
             .status(401)
@@ -171,10 +162,6 @@ const authoriseRefreshToken = (0, asyncHandler_1.asyncHandler)(async (req, res) 
     if (!refreshToken || !accessToken) {
         throw new ApiErrors_1.ApiErrors(500, "Failed to generate new tokens. Please try again.");
     }
-    const returnToken = {
-        refreshToken: refreshToken,
-        accessToken,
-    };
     const options = {
         httpOnly: true,
         secure: true,
@@ -183,7 +170,10 @@ const authoriseRefreshToken = (0, asyncHandler_1.asyncHandler)(async (req, res) 
         .status(200)
         .cookie("accessToken", accessToken, options)
         .cookie("refreshToken", refreshToken, options)
-        .json(new ApiResponse_1.ApiResponse(200, returnToken, "login successfully"));
+        .json(new ApiResponse_1.ApiResponse(200, {
+        refreshToken,
+        accessToken,
+    }, "login successfully"));
 });
 exports.authoriseRefreshToken = authoriseRefreshToken;
 //////////////////////////////////////////
@@ -191,16 +181,12 @@ exports.authoriseRefreshToken = authoriseRefreshToken;
 ///////////////////////////////////////////////////
 // CHANGE PASSWORD
 const changePassword = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const userId = req.user.id;
+    const user = req.user;
     const { oldPassword, newPassword } = req.body;
     if (!oldPassword || !newPassword) {
         return res
             .status(400)
             .json(new ApiResponse_1.ApiResponse(400, {}, "Old and new passwords are required"));
-    }
-    const user = await prismaObject_1.default.user.findUnique({ where: { id: userId } });
-    if (!user) {
-        return res.status(404).json(new ApiResponse_1.ApiResponse(404, "User not found"));
     }
     const isPasswordCorrect = await bcrypt_1.default.compare(oldPassword, user.password);
     if (!isPasswordCorrect) {
@@ -210,8 +196,9 @@ const changePassword = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     }
     // const hashedNewPassword = await bcrypt.hash(newPassword, 10);
     await prismaObject_1.default.user.update({
-        where: { id: userId },
+        where: { id: user.id },
         data: { password: newPassword },
+        select: { id: true },
     });
     return res
         .status(200)
@@ -225,19 +212,15 @@ exports.changePassword = changePassword;
 ///////////////////////////////////////////////////////////////
 // UPDATE USER
 const updateUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const userId = req.user.id;
+    const user = req.user;
     const { name, mobile, email, adhar_card } = req.body;
     if (!name || !mobile || !email || !adhar_card) {
         return res
             .status(400)
             .json(new ApiResponse_1.ApiResponse(400, {}, "All fields are required"));
     }
-    const user = await prismaObject_1.default.user.findUnique({ where: { id: userId } });
-    if (!user) {
-        return res.status(404).json(new ApiResponse_1.ApiResponse(404, {}, "User not found"));
-    }
     const updatedUser = await prismaObject_1.default.user.update({
-        where: { id: userId },
+        where: { id: user.id },
         data: { name, mobile, email, adhar_card },
         select: {
             email: true,
@@ -246,14 +229,16 @@ const updateUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             adhar_card: true,
         },
     });
-    if (!updatedUser) {
-        return res
-            .status(500) // Internal Server Error
-            .json(new ApiResponse_1.ApiResponse(500, "", "Something went wrong, User not updated"));
-    }
+    // if (!updatedUser) {
+    //   return res
+    //     .status(500) // Internal Server Error
+    //     .json(new ApiResponse(500, "", "Something went wrong, User not updated"));
+    // }
     return res
         .status(200)
-        .json(new ApiResponse_1.ApiResponse(200, updatedUser, "User updated successfully"));
+        .json(new ApiResponse_1.ApiResponse(200, updatedUser || "", updatedUser
+        ? "User updated successfully"
+        : "Something went wrong, User not updated"));
 });
 exports.updateUser = updateUser;
 ////////////////////////////////////////////////////////////////
@@ -262,23 +247,17 @@ exports.updateUser = updateUser;
 ////////////////////////////////////////////////////////////////
 // GET USER
 const getUser = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const userId = req.user.id;
-    const user = await prismaObject_1.default.user.findUnique({
-        where: { id: userId },
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            mobile: true,
-            adhar_card: true,
-        },
-    });
-    if (!user) {
-        return res.status(404).json(new ApiResponse_1.ApiResponse(404, null, "There is no user"));
-    }
+    const user = req.user;
+    const responseuser = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        mobile: user.mobile,
+        adhar_card: user.adhar_card,
+    };
     return res
         .status(200)
-        .json(new ApiResponse_1.ApiResponse(200, user, "User fetched successfully"));
+        .json(new ApiResponse_1.ApiResponse(200, responseuser, "User fetched successfully"));
 });
 exports.getUser = getUser;
 //# sourceMappingURL=user.controllers.js.map

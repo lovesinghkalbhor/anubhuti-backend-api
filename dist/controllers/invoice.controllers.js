@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DownloadInvoice = exports.viewInvoice = void 0;
+exports.DownloadKindsInvoice = exports.viewkindInvoice = exports.DownloadInvoice = exports.viewInvoice = void 0;
 const asyncHandler_1 = require("../utils/asyncHandler");
 const ApiResponse_1 = require("../utils/ApiResponse");
 const prismaObject_1 = __importDefault(require("../utils/prismaObject"));
@@ -21,9 +21,9 @@ const formattedName = (authorizedPersonName) => {
 };
 // ADD DONATION
 const viewInvoice = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const { receiptNo } = req.query;
+    const { id } = req.query;
     // Validate the phone number
-    if (!receiptNo || typeof receiptNo !== "string") {
+    if (!id) {
         return res
             .status(401)
             .json(new ApiResponse_1.ApiResponse(401, {}, "Invoice number is required"));
@@ -31,11 +31,8 @@ const viewInvoice = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     // Query the database for the donor by phone number
     const results = await prismaObject_1.default.donation.findFirst({
         where: {
-            receiptNo: Number(receiptNo),
+            id: Number(id),
             // Ensure the phone number is treated as a string
-        },
-        include: {
-            items: true,
         },
     });
     if (!results) {
@@ -51,10 +48,44 @@ const viewInvoice = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     });
 });
 exports.viewInvoice = viewInvoice;
-const DownloadInvoice = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const { receiptNo } = req.query;
+//////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+const viewkindInvoice = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const { id } = req.query;
     // Validate the phone number
-    if (!receiptNo || typeof receiptNo !== "string") {
+    if (!id) {
+        return res
+            .status(401)
+            .json(new ApiResponse_1.ApiResponse(401, {}, "Invoice number is required"));
+    }
+    // Query the database for the donor by phone number
+    const results = await prismaObject_1.default.donationKinds.findFirst({
+        where: {
+            id: Number(id),
+            // Ensure the phone number is treated as a string
+        },
+        include: {
+            items: true,
+        },
+    });
+    if (!results) {
+        return res
+            .status(401)
+            .json(new ApiResponse_1.ApiResponse(401, {}, "Donor not found,can not generate reciept"));
+    }
+    res.render("kindinvoice", {
+        donation: results,
+        formattedName: formattedName(results?.authorizedPersonName || ""),
+        downloadUrl: process.env.DOWNLOAD_RECEIPT_URL,
+    });
+});
+exports.viewkindInvoice = viewkindInvoice;
+//////////////////////////////////////////////////////
+/////////////////////////////////////////
+const DownloadInvoice = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const { id } = req.query;
+    // Validate the phone number
+    if (!id) {
         return res
             .status(401)
             .json(new ApiResponse_1.ApiResponse(401, {}, "Invoice number is required"));
@@ -62,11 +93,8 @@ const DownloadInvoice = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     // Query the database for the donor by phone number
     const results = await prismaObject_1.default.donation.findFirst({
         where: {
-            receiptNo: Number(receiptNo),
+            id: Number(id),
             // Ensure the phone number is treated as a string
-        },
-        include: {
-            items: true,
         },
     });
     if (!results) {
@@ -82,4 +110,36 @@ const DownloadInvoice = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     });
 });
 exports.DownloadInvoice = DownloadInvoice;
+//////////////////////////////////////////////////////
+/////////////////////////////////////////
+const DownloadKindsInvoice = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const { id } = req.query;
+    // Validate the phone number
+    if (!id) {
+        return res
+            .status(401)
+            .json(new ApiResponse_1.ApiResponse(401, {}, "Invoice number is required"));
+    }
+    // Query the database for the donor by phone number
+    const results = await prismaObject_1.default.donationKinds.findFirst({
+        where: {
+            id: Number(id),
+            // Ensure the phone number is treated as a string
+        },
+        include: {
+            items: true,
+        },
+    });
+    if (!results) {
+        return res
+            .status(401)
+            .json(new ApiResponse_1.ApiResponse(401, {}, "Donor not found,can not generate reciept"));
+    }
+    res.render("downloadableKindsInvoice", {
+        donation: results,
+        formattedName: formattedName(results?.authorizedPersonName || ""),
+        downloadUrl: process.env.DOWNLOAD_RECEIPT_URL,
+    });
+});
+exports.DownloadKindsInvoice = DownloadKindsInvoice;
 //# sourceMappingURL=invoice.controllers.js.map

@@ -13,9 +13,9 @@ var DonationCategory;
 })(DonationCategory || (exports.DonationCategory = DonationCategory = {}));
 var PaymentMethod;
 (function (PaymentMethod) {
-    PaymentMethod["CASH"] = "Cash";
-    PaymentMethod["CHEQUE"] = "Cheque";
-    PaymentMethod["UPI"] = "UPI";
+    PaymentMethod["CASH"] = "CASH";
+    // CHEQUE = "Cheque",
+    // UPI = "UPI",
     // DD = "DD",
 })(PaymentMethod || (exports.PaymentMethod = PaymentMethod = {}));
 //# sourceMappingURL=types.js.map
