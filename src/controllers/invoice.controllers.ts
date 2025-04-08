@@ -25,10 +25,10 @@ const formattedName = (authorizedPersonName: string) => {
 };
 // ADD DONATION
 const viewInvoice = asyncHandler(async (req: Request, res: Response) => {
-  const { receiptNo } = req.query;
+  const { id } = req.query;
 
   // Validate the phone number
-  if (!receiptNo || typeof receiptNo !== "string") {
+  if (!id) {
     return res
       .status(401)
       .json(new ApiResponse(401, {}, "Invoice number is required"));
@@ -37,11 +37,8 @@ const viewInvoice = asyncHandler(async (req: Request, res: Response) => {
   // Query the database for the donor by phone number
   const results = await prisma.donation.findFirst({
     where: {
-      receiptNo: Number(receiptNo),
+      id: Number(id),
       // Ensure the phone number is treated as a string
-    },
-    include: {
-      items: true,
     },
   });
 
@@ -61,11 +58,51 @@ const viewInvoice = asyncHandler(async (req: Request, res: Response) => {
   });
 });
 
-const DownloadInvoice = asyncHandler(async (req: Request, res: Response) => {
-  const { receiptNo } = req.query;
+//////////////////////////////////////////////////////
+////////////////////////////////////////////////////
+const viewkindInvoice = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.query;
 
   // Validate the phone number
-  if (!receiptNo || typeof receiptNo !== "string") {
+  if (!id) {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, {}, "Invoice number is required"));
+  }
+
+  // Query the database for the donor by phone number
+  const results = await prisma.donationKinds.findFirst({
+    where: {
+      id: Number(id),
+      // Ensure the phone number is treated as a string
+    },
+    include: {
+      items: true,
+    },
+  });
+
+  if (!results) {
+    return res
+      .status(401)
+      .json(
+        new ApiResponse(401, {}, "Donor not found,can not generate reciept")
+      );
+  }
+
+  res.render("kindinvoice", {
+    donation: results,
+    formattedName: formattedName(results?.authorizedPersonName || ""),
+    downloadUrl: process.env.DOWNLOAD_RECEIPT_URL,
+  });
+});
+
+//////////////////////////////////////////////////////
+/////////////////////////////////////////
+const DownloadInvoice = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.query;
+
+  // Validate the phone number
+  if (!id) {
     return res
       .status(401)
       .json(new ApiResponse(401, {}, "Invoice number is required"));
@@ -74,11 +111,8 @@ const DownloadInvoice = asyncHandler(async (req: Request, res: Response) => {
   // Query the database for the donor by phone number
   const results = await prisma.donation.findFirst({
     where: {
-      receiptNo: Number(receiptNo),
+      id: Number(id),
       // Ensure the phone number is treated as a string
-    },
-    include: {
-      items: true,
     },
   });
 
@@ -97,6 +131,46 @@ const DownloadInvoice = asyncHandler(async (req: Request, res: Response) => {
     downloadUrl: process.env.DOWNLOAD_RECEIPT_URL,
   });
 });
+//////////////////////////////////////////////////////
+/////////////////////////////////////////
+const DownloadKindsInvoice = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.query;
+
+    // Validate the phone number
+    if (!id) {
+      return res
+        .status(401)
+        .json(new ApiResponse(401, {}, "Invoice number is required"));
+    }
+
+    // Query the database for the donor by phone number
+    const results = await prisma.donationKinds.findFirst({
+      where: {
+        id: Number(id),
+        // Ensure the phone number is treated as a string
+      },
+      include: {
+        items: true,
+      },
+    });
+
+    if (!results) {
+      return res
+        .status(401)
+        .json(
+          new ApiResponse(401, {}, "Donor not found,can not generate reciept")
+        );
+    }
+
+    res.render("downloadableKindsInvoice", {
+      donation: results,
+
+      formattedName: formattedName(results?.authorizedPersonName || ""),
+      downloadUrl: process.env.DOWNLOAD_RECEIPT_URL,
+    });
+  }
+);
 
 // ///////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -191,4 +265,4 @@ const DownloadInvoice = asyncHandler(async (req: Request, res: Response) => {
 /////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 
-export { viewInvoice, DownloadInvoice };
+export { viewInvoice, DownloadInvoice, viewkindInvoice, DownloadKindsInvoice };

@@ -14,7 +14,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 0px;
         margin-left: -20px;
       }
 
@@ -31,8 +31,11 @@
 
       .receipt-number {
         border: 1px solid #000;
-        padding: 5px 20px;
-        font-size: 0.9em;
+        padding-top: 10px;
+        padding-bottom: 20px;
+        padding-left: 10px;
+        padding-right: 10px;
+        font-size: 0.7em;
       }
       .org-details {
         flex-grow: 1;
@@ -51,12 +54,11 @@
         font-size: 0.7em;
       }
       form {
-        margin-top: 20px;
-        /* margin-top: 100px; */
+        margin-top: 0px;
       }
       .form-field {
         margin: 20px 0;
-        margin-top: 10px;
+        margin-top: 0px;
       }
       input[type="text"] {
         width: 100%;
@@ -76,16 +78,16 @@
         font-weight: 300;
         text-transform: capitalize;
       }
-      p {
+      h6 {
         border-bottom: 1px solid #000;
         padding-bottom: 10px;
         font-size: 0.8rem;
         font-weight: 500;
         /* text-transform: capitalize; */
       }
-      p::first-letter {
+      /* h6::first-letter {
         text-transform: capitalize;
-      }
+      } */
       thead th {
         font-size: 0.8rem;
         font-weight: 700;
@@ -103,18 +105,14 @@
       .signature-section {
         display: flex;
         justify-content: space-between;
-        margin-top: 30px;
-        margin-bottom: 30px;
-      }
-      .signature-section label {
-        font-weight: bold;
-        color: rgb(22, 22, 161);
+        margin-top: 50px;
+        margin-bottom: 50px;
       }
       .amount-box {
         border: 1px solid #000;
         width: 150px;
         height: 40px;
-        margin-top: 10px;
+        margin-top: 20px;
       }
       .footer {
         margin-top: 30px;
@@ -125,8 +123,8 @@
       .donation-info {
         text-align: center;
         border: 1px solid #000;
-        padding: 5px;
-        margin: 5px 0;
+        padding-top: 5px;
+        padding-bottom: 15px;
         font-size: 0.8em;
       }
       label {
@@ -135,6 +133,9 @@
       button {
         margin-top: 1rem;
         cursor: pointer;
+      }
+      a {
+        margin-bottom: 10px;
       }
     </style>
   </head>
@@ -163,50 +164,58 @@
         <div>Date: <%= new Date(donation.date).toLocaleDateString() %></div>
       </div>
     </div>
-    <!-- <hr class="horizontal-line" /> -->
     <form>
       <div class="form-field">
         <label>Received with thanks from M/s.</label>
-        <p><%= donation.donorName %></p>
+        <h6><%= donation.donorName %></h6>
       </div>
 
       <div class="form-field">
         <label>Aadhar Card / PAN No.</label>
-        <p><%= donation.pan || donation.aadhar || 'N/A' %></p>
+        <h6><%= donation.pan || donation.aadhar || 'N/A' %></h6>
         <span style="float: right">
           <label>Phone</label>
-          <p style="width: 200px"><%= donation.phoneNumber %></p>
+          <h6 style="width: 200px"><%= donation.phoneNumber %></h6>
         </span>
       </div>
 
       <div class="form-field">
         <label>Address</label>
-        <p><%= donation.address || 'N/A' %></p>
+        <h6><%= donation.address || 'N/A' %></h6>
       </div>
 
       <div class="form-field">
-        <label>The sum of Rs. in words</label>
-        <p><%= amountInWords %> /-</p>
+        <label>Items</label>
+        <table style="width: 60%; border-collapse: collapse; margin-top: 10px">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Quantity</th>
+              <th>Approx. Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% donation.items.forEach(item => { %>
+            <tr>
+              <td><%= item.name %></td>
+              <td><%= item.quantity %></td>
+              <td>₹<%= item.approxAmount || 'N/A' %></td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
       </div>
-
-      <div>
-        <div class="form-field">
-          <label>Purpose</label>
-          <p style="width: 60%"><%=donation.purpose %></p>
-        </div>
-        <div class="amount-box" style="float: right">
-          <div style="text-align: center; padding-top: 10px">
-            Rs. <%= donation.amount %> /-
-          </div>
-        </div>
+      <div class="form-field">
+        <label>Purpose</label>
+        <h6 style="width: 60%"><%=donation.purpose %></h6>
       </div>
 
       <div class="signature-section">
         <div>
-          <div style="text-align: left">
+          <!-- <div style="text-align: left">
             <label>Payment Mode : </label>
             <span><%=donation.paymentMethod %></span>
-          </div>
+          </div> -->
 
           <div style="text-align: left">
             <div>
@@ -255,5 +264,13 @@
         document.body.removeChild(anchor);
       }
     </script> -->
+    <script>
+      function capitalizeFirstLetter(text) {
+        if (!text) {
+          return text; // Return empty or null input as is
+        }
+        return text.charAt(0).toUpperCase() + text.slice(1);
+      }
+    </script>
   </body>
 </html>

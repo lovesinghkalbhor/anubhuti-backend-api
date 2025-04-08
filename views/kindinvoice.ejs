@@ -14,7 +14,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 20px;
         margin-left: -20px;
       }
 
@@ -52,7 +52,6 @@
       }
       form {
         margin-top: 20px;
-        /* margin-top: 100px; */
       }
       .form-field {
         margin: 20px 0;
@@ -103,8 +102,8 @@
       .signature-section {
         display: flex;
         justify-content: space-between;
-        margin-top: 30px;
-        margin-bottom: 30px;
+        margin-top: 50px;
+        margin-bottom: 50px;
       }
       .signature-section label {
         font-weight: bold;
@@ -114,7 +113,7 @@
         border: 1px solid #000;
         width: 150px;
         height: 40px;
-        margin-top: 10px;
+        margin-top: 20px;
       }
       .footer {
         margin-top: 30px;
@@ -126,7 +125,7 @@
         text-align: center;
         border: 1px solid #000;
         padding: 5px;
-        margin: 5px 0;
+        margin: 10px 0;
         font-size: 0.8em;
       }
       label {
@@ -163,7 +162,6 @@
         <div>Date: <%= new Date(donation.date).toLocaleDateString() %></div>
       </div>
     </div>
-    <!-- <hr class="horizontal-line" /> -->
     <form>
       <div class="form-field">
         <label>Received with thanks from M/s.</label>
@@ -185,28 +183,37 @@
       </div>
 
       <div class="form-field">
-        <label>The sum of Rs. in words</label>
-        <p><%= amountInWords %> /-</p>
+        <label>Items</label>
+        <table style="width: 60%; border-collapse: collapse; margin-top: 10px">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Quantity</th>
+              <th>Approx. Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% donation.items.forEach(item => { %>
+            <tr>
+              <td><%= item.name %></td>
+              <td><%= item.quantity %></td>
+              <td>₹<%= item.approxAmount || 'N/A' %></td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
       </div>
-
-      <div>
-        <div class="form-field">
-          <label>Purpose</label>
-          <p style="width: 60%"><%=donation.purpose %></p>
-        </div>
-        <div class="amount-box" style="float: right">
-          <div style="text-align: center; padding-top: 10px">
-            Rs. <%= donation.amount %> /-
-          </div>
-        </div>
+      <div class="form-field">
+        <label>Purpose</label>
+        <p style="width: 60%"><%=donation.purpose %></p>
       </div>
 
       <div class="signature-section">
         <div>
-          <div style="text-align: left">
+          <!-- <div style="text-align: left">
             <label>Payment Mode : </label>
             <span><%=donation.paymentMethod %></span>
-          </div>
+          </div> -->
 
           <div style="text-align: left">
             <div>

@@ -1,9 +1,6 @@
-
-
 generator client {
   provider = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-1.0.x"]
-
 }
 
 datasource db {
@@ -11,51 +8,71 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
 model User {
-    id         Int     @id @default(autoincrement())
-    name       String
-    adhar_card String  @unique
-    mobile     String  @unique
-    email      String?
-    password   String
-    refreshToken String?
-    created_at DateTime @default(now())
-    // Relationship with Donation
-    donations     Donation[] 
+  id             Int             @id @default(autoincrement())
+  name           String
+  adhar_card     String          @unique
+  mobile         String          @unique
+  email          String?
+  password       String
+  refreshToken   String?
+  created_at     DateTime        @default(now())
+  // Relationship with Donation
+  donations      Donation[]
+  donationsKinds DonationKinds[]
 }
 
-
 model Donation {
-  id                 Int       @id @default(autoincrement())
-  receiptNo          Int      @unique  
-  date               DateTime  @default(now())
-  authorizedPerson   User   @relation(fields: [authorizedPersonId], references: [id])
+  id                   Int      @id @default(autoincrement())
+  receiptNo            String
+  date                 DateTime @default(now())
+  authorizedPerson     User     @relation(fields: [authorizedPersonId], references: [id])
   authorizedPersonName String
   authorizedPersonId   Int
 
-  donorName          String
-  aadhar             String?
-  pan                String?
-  phoneNumber        String
-  address            String
+  donorName   String
+  aadhar      String?
+  pan         String?
+  phoneNumber String
+  address     String
+  countryCode String  @default("+91")
 
-  amount             Int?      // Amount donated (if it's a monetary donation)
-  items              Item[]   // Array of items donated (if it's an item donation)
+  amount Int? // Amount donated (if it's a monetary donation)
 
-  paymentMethod      String  @default("Unknown")  // Provide a default value
-  donationCategory   String  @default("OTHER")  // Provide a default value
-  purpose            String
-  websiteDetails     String    @default("anubhuti.com")
+  paymentMethod    String @default("Unknown") // Provide a default value
+  donationCategory String @default("OTHER") // Provide a default value
+  purpose          String
+  websiteDetails   String @default("anubhuti.com")
 }
 
+model DonationKinds {
+  id                   Int      @id @default(autoincrement())
+  receiptNo            String   @unique
+  date                 DateTime @default(now())
+  authorizedPerson     User     @relation(fields: [authorizedPersonId], references: [id])
+  authorizedPersonName String
+  authorizedPersonId   Int
+
+  donorName   String
+  aadhar      String?
+  pan         String?
+  phoneNumber String
+  countryCode String  @default("+91")
+
+  address String
+
+  items Item[] // Array of items donated (if it's an item donation)
+
+  donationCategory String @default("OTHER") // Provide a default value
+  purpose          String
+  websiteDetails   String @default("anubhuti.com")
+}
 
 model Item {
-  id         Int      @id @default(autoincrement())
-  name       String   // Name of the donated item
-  quantity   String      // Quantity of the donated item
-  approxAmount   Int      @default(0)  // Provide a default value
-  donation   Donation @relation(fields: [donationId], references: [id])
-  donationId Int      // Foreign key to link with Donation model
+  id            Int           @id @default(autoincrement())
+  name          String // Name of the donated item
+  quantity      String // Quantity of the donated item
+  approxAmount  Int           @default(0) // Provide a default value
+  donationKinds DonationKinds @relation(fields: [donationId], references: [id])
+  donationId    Int // Foreign key to link with Donation model
 }

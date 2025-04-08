@@ -30,9 +30,9 @@ enum DonationCategory {
 }
 
 enum PaymentMethod {
-  CASH = "Cash",
-  CHEQUE = "Cheque",
-  UPI = "UPI",
+  CASH = "CASH",
+  // CHEQUE = "Cheque",
+  // UPI = "UPI",
   // DD = "DD",
 }
 

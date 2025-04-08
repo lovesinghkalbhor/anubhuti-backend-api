@@ -8,8 +8,10 @@ import prisma from "../utils/prismaObject";
 import { returnUserdata } from "../types/types";
 async function generteAccessAndRefreshToken(user: User) {
   try {
-    const refreshToken = await prisma.user.generateRefreshToken(user.id);
-    const accessToken = await prisma.user.generateAccessToken(user.id);
+    const [refreshToken, accessToken] = await Promise.all([
+      prisma.user.generateRefreshToken(user),
+      prisma.user.generateAccessToken(user),
+    ]);
 
     const updateRefreshToken = await prisma.user.update({
       where: {
@@ -35,13 +37,6 @@ async function generteAccessAndRefreshToken(user: User) {
 }
 
 const registerUser = asyncHandler(async (req: Request, res: Response) => {
-  // get user details from frontend
-  // validation - not empty
-  // check if user already exists: username, email
-  // create user object - create entry in db
-  // remove password and refresh token field from response
-  // return res
-
   const { name, adhar_card, mobile, email, password } = req.body;
 
   if (!name || !adhar_card || !mobile || !password) {
@@ -52,6 +47,7 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
 
   const existinguser = await prisma.user.findFirst({
     where: { OR: [{ mobile: mobile }, { adhar_card: adhar_card }] },
+    select: { id: true }, // Only fetch what we need
   });
 
   if (existinguser) {
@@ -102,12 +98,6 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 ///////////////////////////////////////////////////
-//////////////////////////////////////////////////
-///////////////////////////////////////////////////
-////////////////////////////////////////////////////
-//////////////////////////////////////////////////
-/////////////////////////////////////////////////////
-////////////////////////////////////////////////////
 
 const loginUser = asyncHandler(async (req: Request, res: Response) => {
   const { mobile, password } = req.body;
@@ -127,7 +117,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const isPasswordCorrect = await prisma.user.isPasswordCorrect(
-    user.id,
+    user.password,
     password
   );
 
@@ -214,11 +204,6 @@ const authoriseRefreshToken = asyncHandler(
       );
     }
 
-    const returnToken = {
-      refreshToken: refreshToken,
-      accessToken,
-    };
-
     const options = {
       httpOnly: true,
       secure: true,
@@ -227,7 +212,16 @@ const authoriseRefreshToken = asyncHandler(
       .status(200)
       .cookie("accessToken", accessToken, options)
       .cookie("refreshToken", refreshToken, options)
-      .json(new ApiResponse(200, returnToken, "login successfully"));
+      .json(
+        new ApiResponse(
+          200,
+          {
+            refreshToken,
+            accessToken,
+          },
+          "login successfully"
+        )
+      );
   }
 );
 //////////////////////////////////////////
@@ -236,19 +230,13 @@ const authoriseRefreshToken = asyncHandler(
 
 // CHANGE PASSWORD
 const changePassword = asyncHandler(async (req: Request, res: Response) => {
-  const userId = (req as Request & { user: any }).user.id;
+  const user = (req as Request & { user: any }).user;
   const { oldPassword, newPassword } = req.body;
 
   if (!oldPassword || !newPassword) {
     return res
       .status(400)
       .json(new ApiResponse(400, {}, "Old and new passwords are required"));
-  }
-
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-
-  if (!user) {
-    return res.status(404).json(new ApiResponse(404, "User not found"));
   }
 
   const isPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
@@ -261,8 +249,9 @@ const changePassword = asyncHandler(async (req: Request, res: Response) => {
 
   // const hashedNewPassword = await bcrypt.hash(newPassword, 10);
   await prisma.user.update({
-    where: { id: userId },
+    where: { id: user.id },
     data: { password: newPassword },
+    select: { id: true },
   });
 
   return res
@@ -277,7 +266,7 @@ const changePassword = asyncHandler(async (req: Request, res: Response) => {
 
 // UPDATE USER
 const updateUser = asyncHandler(async (req: Request, res: Response) => {
-  const userId = (req as Request & { user: any }).user.id;
+  const user = (req as Request & { user: any }).user;
   const { name, mobile, email, adhar_card } = req.body;
   if (!name || !mobile || !email || !adhar_card) {
     return res
@@ -285,14 +274,8 @@ const updateUser = asyncHandler(async (req: Request, res: Response) => {
       .json(new ApiResponse(400, {}, "All fields are required"));
   }
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-
-  if (!user) {
-    return res.status(404).json(new ApiResponse(404, {}, "User not found"));
-  }
-
   const updatedUser = await prisma.user.update({
-    where: { id: userId },
+    where: { id: user.id },
     data: { name, mobile, email, adhar_card },
     select: {
       email: true,
@@ -302,15 +285,23 @@ const updateUser = asyncHandler(async (req: Request, res: Response) => {
     },
   });
 
-  if (!updatedUser) {
-    return res
-      .status(500) // Internal Server Error
-      .json(new ApiResponse(500, "", "Something went wrong, User not updated"));
-  }
+  // if (!updatedUser) {
+  //   return res
+  //     .status(500) // Internal Server Error
+  //     .json(new ApiResponse(500, "", "Something went wrong, User not updated"));
+  // }
 
   return res
     .status(200)
-    .json(new ApiResponse(200, updatedUser, "User updated successfully"));
+    .json(
+      new ApiResponse(
+        200,
+        updatedUser || "",
+        updatedUser
+          ? "User updated successfully"
+          : "Something went wrong, User not updated"
+      )
+    );
 });
 
 ////////////////////////////////////////////////////////////////
@@ -320,26 +311,19 @@ const updateUser = asyncHandler(async (req: Request, res: Response) => {
 
 // GET USER
 const getUser = asyncHandler(async (req: Request, res: Response) => {
-  const userId = (req as Request & { user: any }).user.id;
+  const user = (req as Request & { user: any }).user;
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      mobile: true,
-      adhar_card: true,
-    },
-  });
-
-  if (!user) {
-    return res.status(404).json(new ApiResponse(404, null, "There is no user"));
-  }
+  const responseuser = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    mobile: user.mobile,
+    adhar_card: user.adhar_card,
+  };
 
   return res
     .status(200)
-    .json(new ApiResponse(200, user, "User fetched successfully"));
+    .json(new ApiResponse(200, responseuser, "User fetched successfully"));
 });
 
 export {

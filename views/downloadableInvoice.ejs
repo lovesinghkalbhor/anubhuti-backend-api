@@ -14,7 +14,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 0px;
         margin-left: -20px;
       }
 
@@ -31,11 +31,11 @@
 
       .receipt-number {
         border: 1px solid #000;
-        padding-top: 10px;
-        padding-bottom: 20px;
+        padding-top: 6px;
+        padding-bottom: 14px;
         padding-left: 10px;
         padding-right: 10px;
-        font-size: 0.9em;
+        font-size: 0.7em;
       }
       .org-details {
         flex-grow: 1;
@@ -54,11 +54,11 @@
         font-size: 0.7em;
       }
       form {
-        margin-top: 50px;
+        margin-top: 0px;
       }
       .form-field {
         margin: 20px 0;
-        margin-top: 30px;
+        margin-top: 0px;
       }
       input[type="text"] {
         width: 100%;
@@ -142,7 +142,9 @@
   <body>
     <div class="header">
       <div class="logo">
-        <img src="http://anubhutivisionss.com/images/AnubhutiLogo.png" alt="" />
+        <!-- <img src="http://localhost:3000/images/AnubhutiLogo.png" alt="" /> -->
+        <!-- for server -->
+        <img src="/images/AnubhutiLogo.png" alt="" />
       </div>
       <div class="org-details">
         <div class="reg-number">
@@ -162,7 +164,6 @@
         <div>Date: <%= new Date(donation.date).toLocaleDateString() %></div>
       </div>
     </div>
-    <hr class="horizontal-line" />
     <form>
       <div class="form-field">
         <label>Received with thanks from M/s.</label>
@@ -173,7 +174,7 @@
         <label>Aadhar Card / PAN No.</label>
         <h6><%= donation.pan || donation.aadhar || 'N/A' %></h6>
         <span style="float: right">
-          <label>Phone</label>
+          <label>Mobile</label>
           <h6 style="width: 200px"><%= donation.phoneNumber %></h6>
         </span>
       </div>
@@ -187,61 +188,36 @@
         <label>The sum of Rs. in words</label>
         <h6><%= amountInWords %> /-</h6>
       </div>
-      <div class="form-field">
-        <label>Items</label>
-        <table style="width: 60%; border-collapse: collapse; margin-top: 10px">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Quantity</th>
-              <th>Approx. Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% donation.items.forEach(item => { %>
-            <tr>
-              <td><%= item.name %></td>
-              <td><%= item.quantity %></td>
-              <td>₹<%= item.approxAmount || 'N/A' %></td>
-            </tr>
-            <% }); %>
-          </tbody>
-        </table>
-      </div>
-      <div class="form-field">
-        <label>Purpose</label>
-        <h6 style="width: 60%"><%=donation.purpose %></h6>
+      <div>
+        <div class="form-field">
+          <label>Purpose</label>
+          <h6 style="width: 60%"><%=donation.purpose %></h6>
+        </div>
+        <div class="amount-box" style="float: right">
+          <div style="text-align: center; padding-bottom: 10px">
+            Rs. <%= donation.amount %> /-
+          </div>
+        </div>
       </div>
 
       <div class="signature-section">
         <div>
-          <div class="amount-box">
-            <div style="text-align: center">Rs. <%= donation.amount %> /-</div>
-          </div>
-          <div class="form-field">
+          <div style="text-align: left">
             <label>Payment Mode : </label>
-            <span style="width: 60%; font-weight: 500; font-size: 0.9rem"
-              ><%=donation.paymentMethod %></span
-            >
+            <span><%=donation.paymentMethod %></span>
           </div>
 
           <div style="text-align: left">
-            <div style="margin-top: 10px; margin-bottom: 10px">
-              <span style="color: rgb(0, 0, 171)"
-                >Accountant / Authorised Person :</span
-              >
-              <%= formattedName %>
+            <div>
+              <label>Accountant / Authorised Person :</label>
+              <span> <%= formattedName %> </span>
             </div>
             <div>
-              <span style="font-weight: 500">For : </span>Anubhuti Vision Seva
-              Sansthan
+              <label>For : </label>
+              <span>Anubhuti Vision Seva Sansthan</span>
             </div>
           </div>
         </div>
-        <!-- <div style="text-align: center">
-          <div>................................</div>
-          <div>Donor's Signature</div>
-        </div> -->
       </div>
 
       <div class="donation-info">
@@ -278,5 +254,13 @@
         document.body.removeChild(anchor);
       }
     </script> -->
+    <script>
+      function capitalizeFirstLetter(text) {
+        if (!text) {
+          return text; // Return empty or null input as is
+        }
+        return text.charAt(0).toUpperCase() + text.slice(1);
+      }
+    </script>
   </body>
 </html>
