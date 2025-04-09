@@ -100,7 +100,7 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
   // Send invoice link
 
   await sendMessage(
-    `Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL}=${donation.receiptNo}`,
+    `Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL_MONEY}=${donation.id}`,
     countryCode + phoneNumber
   ).catch((err) => console.error("Message sending failed:", err));
 
@@ -189,8 +189,8 @@ const editDonation = asyncHandler(async (req: Request, res: Response) => {
   }
 
   // Send invoice link asynchronously (doesn't delay response)
-  sendMessage(
-    `Download your donation receipt: ${process.env.DOWNLOAD_RECEIPT_URL}=${donationId}`,
+  await sendMessage(
+    `Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL_MONEY}=${donationId}`,
     countryCode + phoneNumber
   ).catch((err) => console.error("Message sending failed:", err));
 
@@ -832,14 +832,10 @@ const addDonationKinds = asyncHandler(async (req: Request, res: Response) => {
 
   // Send invoice link
 
-  sendMessage(
-    `Download your donation receipt: ${process.env.DOWNLOAD_RECEIPT_URL}=${donation.receiptNo}`,
+  await sendMessage(
+    `Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL_KIND}=${donation.id}`,
     countryCode + phoneNumber
-  ).catch((err) => {
-    res
-      .status(500) //failed message sending
-      .json(new ApiResponse(500, {}, "failed to send message"));
-  });
+  ).catch((err) => console.error("Message sending failed:", err));
 
   // Respond with the created donation record
 
@@ -940,8 +936,8 @@ const editKindDonation = asyncHandler(async (req: Request, res: Response) => {
   }
 
   // Send invoice link asynchronously (doesn't delay response)
-  sendMessage(
-    `Download your donation receipt: ${process.env.DOWNLOAD_RECEIPT_URL}=${donationId}`,
+  await sendMessage(
+    `Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL_KIND}=${donationId}`,
     countryCode + phoneNumber
   ).catch((err) => console.error("Message sending failed:", err));
 

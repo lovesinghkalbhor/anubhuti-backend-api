@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1000px;
+        margin: 20px auto;
+
+        padding: 20px;
+        margin: auto;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0px;
+        margin-left: -20px;
+      }
+
+      .logo {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        /* border: 1px solid red; */
+      }
+      .logo img {
+        height: auto;
+        width: 200px;
+      }
+
+      .receipt-number {
+        border: 1px solid #000;
+        padding-top: 6px;
+        padding-bottom: 14px;
+        padding-left: 10px;
+        padding-right: 10px;
+        font-size: 0.8em;
+      }
+      .org-details {
+        flex-grow: 1;
+        margin: 0 20px;
+      }
+      .reg-number {
+        font-size: 0.8em;
+        color: #444;
+      }
+      .org-name {
+        font-size: 1.3em;
+        font-weight: bold;
+        margin: 5px 0;
+      }
+      .org-address {
+        font-size: 0.8em;
+      }
+      form {
+        margin-top: 0px;
+      }
+      .form-field label {
+        font-family: 16px;
+      }
+      .form-field h6 {
+        margin-top: 2px;
+      }
+      .form-field {
+        margin: 20px 0;
+        margin-top: 0px;
+      }
+      input[type="text"] {
+        width: 100%;
+        border: none;
+        border-bottom: 1px solid #000;
+        padding: 5px;
+        margin-top: 5px;
+        font-weight: 300;
+        text-transform: capitalize;
+      }
+      input[type="text"] {
+        width: 100%;
+        border: none;
+        border-bottom: 1px solid #000;
+        padding: 5px;
+        margin-top: 5px;
+        font-weight: 300;
+        text-transform: capitalize;
+      }
+      h6 {
+        border-bottom: 1px solid #000;
+        padding-bottom: 10px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        /* text-transform: capitalize; */
+      }
+      /* h6::first-letter {
+        text-transform: capitalize;
+      } */
+      thead th {
+        font-size: 0.8rem;
+        font-weight: 700;
+        border: 1px solid #000;
+        padding: 8px;
+        text-align: left;
+      }
+      tbody td {
+        font-size: 0.7rem;
+        font-weight: 500;
+        border: 1px solid #000;
+        padding: 8px;
+        text-align: left;
+      }
+      .signature-section {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 50px;
+        margin-bottom: 50px;
+      }
+      .amount-box {
+        border: 1px solid #000;
+        width: 150px;
+        height: 40px;
+        margin-top: 20px;
+      }
+      .footer {
+        margin-top: 30px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8em;
+      }
+      .donation-info {
+        text-align: center;
+        border: 1px solid #000;
+        padding-top: 5px;
+        padding-bottom: 15px;
+        font-size: 0.8em;
+      }
+      label {
+        color: rgb(1, 1, 139);
+      }
+      button {
+        margin-top: 1rem;
+        cursor: pointer;
+      }
+      a {
+        margin-bottom: 10px;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  </head>
+  <body>
+    <div id="container">
+      <div class="header">
+        <div class="logo">
+          <img src="http://localhost:3000/images/AnubhutiLogo.png" alt="" />
+          <!-- for server -->
+          <!-- <img src="/images/AnubhutiLogo.png" alt="" /> -->
+        </div>
+        <div class="org-details">
+          <div class="reg-number">
+            Registration No. & Date : 11730/09 - 06 May 2009
+          </div>
+          <div class="org-name">ANUBHUTI VISION SEVA SANSTHAN</div>
+          <div class="org-address">
+            68-2 Mayakhedi, Near Omaxe City-I, Bypass Road, Indore, (M.P.)
+            India<br />
+            Regd. Off. : 203-A, Slice No. 4, Scheme No. 78, Aranya Nagar,<br />
+            Indore. Phone: 0731-4050114, Mobile : 98267-44114
+          </div>
+        </div>
+        <div class="receipt-number">
+          <div>RECEIPT</div>
+          <div>No.: <%= donation.receiptNo %></div>
+          <div>Date: <%= new Date(donation.date).toLocaleDateString() %></div>
+        </div>
+      </div>
+      <form>
+        <div class="form-field">
+          <label>Received with thanks from M/s.</label>
+          <h6><%= donation.donorName %></h6>
+        </div>
+        <!--  -->
+        <div class="form-field">
+          <label>Aadhar Card / PAN No.</label>
+          <h6><%= donation.pan || donation.aadhar || 'N/A' %></h6>
+          <span style="float: right">
+            <label>Mobile</label>
+            <h6 style="width: 200px"><%= donation.phoneNumber %></h6>
+          </span>
+        </div>
+
+        <div class="form-field">
+          <label>Address</label>
+          <h6><%= donation.address || 'N/A' %></h6>
+        </div>
+
+        <div class="form-field">
+          <label>The sum of Rs. in words</label>
+          <h6><%= amountInWords %> /-</h6>
+        </div>
+        <div>
+          <div class="form-field">
+            <label>Purpose</label>
+            <h6 style="width: 60%"><%=donation.purpose %></h6>
+          </div>
+          <div class="amount-box" style="float: right">
+            <div style="text-align: center; padding-bottom: 10px">
+              Rs. <%= donation.amount %> /-
+            </div>
+          </div>
+        </div>
+
+        <div class="signature-section">
+          <div>
+            <div style="text-align: left">
+              <label>Payment Mode : </label>
+              <span><%=donation.paymentMethod %></span>
+            </div>
+
+            <div style="text-align: left">
+              <div>
+                <label>Accountant / Authorised Person :</label>
+                <span> <%= formattedName %> </span>
+              </div>
+              <div>
+                <label>For : </label>
+                <span>Anubhuti Vision Seva Sansthan</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="donation-info">
+          Donation Exempted U/S 80G of IT ACT<br />
+          CIT-I/Ind/Tech/80-G/20/2011-12<br />
+          PAN No.: AABAA7262L
+        </div>
+
+        <div class="footer">
+          <a href="https://www.anubhutivisions.org"
+            >Visit us: www.anubhutivisions.org</a
+          >
+          <a href="mailto:anubhutivisionsss@gmail.com"
+            >Contact us: anubhutivisionsss@gmail.com</a
+          >
+        </div>
+      </form>
+      <button type="button" onclick="handleConvertToPDF()">
+        Download as PDF
+      </button>
+    </div>
+
+    <script>
+      const handleConvertToPDF = () => {
+        const container = document.getElementById("container");
+
+        if (!container) {
+          console.error(
+            "Error: Container element with ID 'container' not found."
+          );
+          return;
+        }
+
+        html2canvas(container, {
+          useCORS: true,
+          allowTaint: true,
+          scale: 1,
+        }).then((canvas) => {
+          const pdf = new jspdf.jsPDF("p", "mm", "a4");
+          const imgData = canvas.toDataURL("image/png");
+
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const pageHeight = pdf.internal.pageSize.getHeight();
+
+          const margin = 10; // Define your margin in millimeters
+
+          let imgWidth = pageWidth - margin * 2; // Calculate image width with margins
+          let imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+          // Calculate vertical position to center the image with margins
+          let verticalPos = margin;
+
+          // Check if the image height exceeds the page height minus margins
+          if (imgHeight > pageHeight - margin * 2) {
+            imgHeight = pageHeight - margin * 2;
+          }
+
+          pdf.addImage(
+            imgData,
+            "PNG",
+            margin,
+            verticalPos,
+            imgWidth,
+            imgHeight
+          );
+          pdf.save(`receipt_<%= donation.receiptNo %>.pdf`);
+        });
+      };
+      function capitalizeFirstLetter(text) {
+        if (!text) {
+          return text; // Return empty or null input as is
+        }
+        return text.charAt(0).toUpperCase() + text.slice(1);
+      }
+    </script>
+  </body>
+</html>

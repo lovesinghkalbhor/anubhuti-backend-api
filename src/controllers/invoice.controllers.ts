@@ -171,6 +171,83 @@ const DownloadKindsInvoice = asyncHandler(
     });
   }
 );
+//////////////////////////////////////////////////////
+/////////////////////////////////////////
+const DownloadInvoiceMobile = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.query;
+
+    // Validate the phone number
+    if (!id) {
+      return res
+        .status(401)
+        .json(new ApiResponse(401, {}, "Invoice number is required"));
+    }
+
+    // Query the database for the donor by phone number
+    const results = await prisma.donation.findFirst({
+      where: {
+        id: Number(id),
+        // Ensure the phone number is treated as a string
+      },
+    });
+
+    if (!results) {
+      return res
+        .status(401)
+        .json(
+          new ApiResponse(401, {}, "Donor not found,can not generate reciept")
+        );
+    }
+
+    res.render("downloadableInvoice-from-message", {
+      donation: results,
+      amountInWords: numberToWords(results?.amount || 0),
+      formattedName: formattedName(results?.authorizedPersonName || ""),
+      downloadUrl: process.env.DOWNLOAD_RECEIPT_URL_MONEY,
+    });
+  }
+);
+//////////////////////////////////////////////////////
+/////////////////////////////////////////
+const DownloadKindsInvoiceMobile = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.query;
+
+    // Validate the phone number
+    if (!id) {
+      return res
+        .status(401)
+        .json(new ApiResponse(401, {}, "Invoice number is required"));
+    }
+
+    // Query the database for the donor by phone number
+    const results = await prisma.donationKinds.findFirst({
+      where: {
+        id: Number(id),
+        // Ensure the phone number is treated as a string
+      },
+      include: {
+        items: true,
+      },
+    });
+
+    if (!results) {
+      return res
+        .status(401)
+        .json(
+          new ApiResponse(401, {}, "Donor not found,can not generate reciept")
+        );
+    }
+
+    res.render("downloadableKindsInvoice-from-message", {
+      donation: results,
+
+      formattedName: formattedName(results?.authorizedPersonName || ""),
+      downloadUrl: process.env.DOWNLOAD_RECEIPT_URL_KIND,
+    });
+  }
+);
 
 // ///////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -265,4 +342,11 @@ const DownloadKindsInvoice = asyncHandler(
 /////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 
-export { viewInvoice, DownloadInvoice, viewkindInvoice, DownloadKindsInvoice };
+export {
+  viewInvoice,
+  DownloadInvoice,
+  viewkindInvoice,
+  DownloadKindsInvoice,
+  DownloadInvoiceMobile,
+  DownloadKindsInvoiceMobile,
+};
