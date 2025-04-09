@@ -12,11 +12,11 @@ const authToken = process.env.TWILIO_AUTH_TOKEN || ""; // Twilio Auth Token
 const client = (0, twilio_1.default)(accountSid, authToken);
 // Function to create and send an SMS message
 async function sendMessage(messageString, mobile = "+919340233410") {
-    // const message = await client.messages.create({
-    //   body: messageString,
-    //   from: "+17726751887", // Replace with your Twilio phone number
-    //   to: String(mobile), // Replace with the recipient's phone number
-    // });
+    const message = await client.messages.create({
+        body: messageString,
+        from: "+17726751887", // Replace with your Twilio phone number
+        to: String(mobile), // Replace with the recipient's phone number
+    });
 }
 // Call the function to send the message
 //# sourceMappingURL=sendingSMS.js.map

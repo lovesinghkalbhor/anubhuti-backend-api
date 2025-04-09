@@ -14,11 +14,11 @@ export async function sendMessage(
   messageString: string,
   mobile: string = "+919340233410"
 ): Promise<void> {
-  // const message = await client.messages.create({
-  //   body: messageString,
-  //   from: "+17726751887", // Replace with your Twilio phone number
-  //   to: String(mobile), // Replace with the recipient's phone number
-  // });
+  const message = await client.messages.create({
+    body: messageString,
+    from: "+17726751887", // Replace with your Twilio phone number
+    to: String(mobile), // Replace with the recipient's phone number
+  });
 }
 
 // Call the function to send the message

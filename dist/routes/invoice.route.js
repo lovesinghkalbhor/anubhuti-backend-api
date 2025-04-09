@@ -10,4 +10,8 @@ invoiceRouter.route("/invoice").get(auth_middleware_1.verifyJWT, invoice_control
 invoiceRouter.route("/invoiceKind").get(auth_middleware_1.verifyJWT, invoice_controllers_1.viewkindInvoice);
 invoiceRouter.route("/downloadInvoice").get(invoice_controllers_1.DownloadInvoice);
 invoiceRouter.route("/downloadKindsInvoice").get(invoice_controllers_1.DownloadKindsInvoice);
+invoiceRouter.route("/downloadInvoice-message").get(invoice_controllers_1.DownloadInvoiceMobile);
+invoiceRouter
+    .route("/downloadKindsInvoice-message")
+    .get(invoice_controllers_1.DownloadKindsInvoiceMobile);
 //# sourceMappingURL=invoice.route.js.map
