@@ -9,10 +9,6 @@ const ApiResponse_1 = require("../utils/ApiResponse");
 const prismaObject_1 = __importDefault(require("../utils/prismaObject"));
 const helperFunction_1 = require("../utils/helperFunction");
 ////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////
 const formattedName = (authorizedPersonName) => {
     return authorizedPersonName
         .split(" ")
@@ -146,12 +142,14 @@ exports.DownloadKindsInvoice = DownloadKindsInvoice;
 /////////////////////////////////////////
 const DownloadInvoiceMobile = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const { id } = req.query;
+    console.log("this is called");
     // Validate the phone number
     if (!id) {
         return res
             .status(401)
             .json(new ApiResponse_1.ApiResponse(401, {}, "Invoice number is required"));
     }
+    console.log(id);
     // Query the database for the donor by phone number
     const results = await prismaObject_1.default.donation.findFirst({
         where: {
@@ -162,7 +160,7 @@ const DownloadInvoiceMobile = (0, asyncHandler_1.asyncHandler)(async (req, res) 
     if (!results) {
         return res
             .status(401)
-            .json(new ApiResponse_1.ApiResponse(401, {}, "Donor not found,can not generate reciept"));
+            .json(new ApiResponse_1.ApiResponse(401, {}, "Donor not found,can not generate reciept new"));
     }
     res.render("downloadableInvoice-from-message", {
         donation: results,

@@ -1,19 +1,11 @@
 import { asyncHandler } from "../utils/asyncHandler";
-import { ApiErrors } from "../utils/ApiErrors";
 import { Request, Response } from "express";
 import { ApiResponse } from "../utils/ApiResponse";
-import { User, Donation } from "@prisma/client";
 import prisma from "../utils/prismaObject";
-import html_to_pdf from "html-pdf-node";
-
-import path from "path";
 import { numberToWords } from "../utils/helperFunction";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////
+
 const formattedName = (authorizedPersonName: string) => {
   return authorizedPersonName
     .split(" ")
@@ -176,14 +168,14 @@ const DownloadKindsInvoice = asyncHandler(
 const DownloadInvoiceMobile = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.query;
-
+    console.log("this is called");
     // Validate the phone number
     if (!id) {
       return res
         .status(401)
         .json(new ApiResponse(401, {}, "Invoice number is required"));
     }
-
+    console.log(id);
     // Query the database for the donor by phone number
     const results = await prisma.donation.findFirst({
       where: {
@@ -196,7 +188,11 @@ const DownloadInvoiceMobile = asyncHandler(
       return res
         .status(401)
         .json(
-          new ApiResponse(401, {}, "Donor not found,can not generate reciept")
+          new ApiResponse(
+            401,
+            {},
+            "Donor not found,can not generate reciept new"
+          )
         );
     }
 

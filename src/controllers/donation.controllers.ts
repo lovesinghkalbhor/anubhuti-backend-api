@@ -1,8 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler";
-import { ApiErrors } from "../utils/ApiErrors";
 import { Request, Response } from "express";
 import { ApiResponse } from "../utils/ApiResponse";
-import { User, Donation } from "@prisma/client";
 import prisma from "../utils/prismaObject";
 import { sendMessage } from "../utils/sendingSMS";
 import {
@@ -16,7 +14,6 @@ import {
   SearchPaginationParams,
 } from "../types/types";
 
-import { env } from "node:process";
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 
@@ -37,6 +34,7 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
     paymentMethod,
     donationCategory,
   } = req.body;
+  let message = "Message sent Successfully";
 
   const validationError = validateDonationInput({
     donorName,
@@ -102,8 +100,10 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
   await sendMessage(
     `Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL_MONEY}=${donation.id}`,
     countryCode + phoneNumber
-  ).catch((err) => console.error("Message sending failed:", err));
-
+  ).catch((err) => {
+    message = "Message sending failed";
+    console.error("Message sending failed:", err);
+  });
   // Respond with the created donation record
 
   return res
@@ -112,7 +112,8 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
       new ApiResponse(
         201,
         donation,
-        "Donation recorded successfully. Receipt has been sent."
+
+        `Donation recorded successfully, ${message}`
       )
     );
 });
@@ -136,6 +137,8 @@ const editDonation = asyncHandler(async (req: Request, res: Response) => {
     paymentMethod,
     donationCategory,
   } = req.body;
+
+  let message = "Message sent Successfully";
 
   if (!donationId) {
     return res
@@ -192,11 +195,14 @@ const editDonation = asyncHandler(async (req: Request, res: Response) => {
   await sendMessage(
     `Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL_MONEY}=${donationId}`,
     countryCode + phoneNumber
-  ).catch((err) => console.error("Message sending failed:", err));
+  ).catch((err) => {
+    message = "Message sending failed";
+    console.error("Message sending failed:", err);
+  });
 
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "Donation updated successfully."));
+    .json(new ApiResponse(200, {}, `Donation updated successfully,${message}`));
 });
 
 ////////////////////////////////////////////////////////////////////////////
@@ -756,6 +762,7 @@ const addDonationKinds = asyncHandler(async (req: Request, res: Response) => {
     purpose,
     donationCategory,
   } = req.body;
+  let message = "Message sent Successfully";
 
   const validationError = validateDonationInput({
     donorName,
@@ -835,7 +842,10 @@ const addDonationKinds = asyncHandler(async (req: Request, res: Response) => {
   await sendMessage(
     `Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL_KIND}=${donation.id}`,
     countryCode + phoneNumber
-  ).catch((err) => console.error("Message sending failed:", err));
+  ).catch((err) => {
+    message = "Message sending failed";
+    console.error("Message sending failed:", err);
+  });
 
   // Respond with the created donation record
 
@@ -845,7 +855,7 @@ const addDonationKinds = asyncHandler(async (req: Request, res: Response) => {
       new ApiResponse(
         201,
         donation,
-        "Donation recorded successfully. Receipt has been sent."
+        `Donation recorded successfully, ${message}`
       )
     );
 });
@@ -867,7 +877,7 @@ const editKindDonation = asyncHandler(async (req: Request, res: Response) => {
     purpose,
     donationCategory,
   } = req.body;
-
+  let message = "Message sent Successfully";
   if (!donationId) {
     return res
       .status(400)
@@ -939,11 +949,16 @@ const editKindDonation = asyncHandler(async (req: Request, res: Response) => {
   await sendMessage(
     `Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL_KIND}=${donationId}`,
     countryCode + phoneNumber
-  ).catch((err) => console.error("Message sending failed:", err));
+  ).catch((err) => {
+    message = "Message sending failed";
+    console.error("Message sending failed:", err);
+  });
 
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "Donation updated successfully."));
+    .json(
+      new ApiResponse(200, {}, `Donation updated successfully, ${message}`)
+    );
 });
 
 //////////////////////////////////////////////////////////////////////////////////////

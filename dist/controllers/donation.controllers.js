@@ -17,6 +17,7 @@ const addDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const user = req.user;
     // Extract fields from request body
     const { countryCode, phoneNumber, donorName, address, purpose, amount, aadhar, pan, paymentMethod, donationCategory, } = req.body;
+    let message = "Message sent Successfully";
     const validationError = (0, helperFunction_1.validateDonationInput)({
         donorName,
         address,
@@ -67,11 +68,14 @@ const addDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             .json(new ApiResponse_1.ApiResponse(500, null, "Failed to create donation record"));
     }
     // Send invoice link
-    await (0, sendingSMS_1.sendMessage)(`Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL_MONEY}=${donation.id}`, countryCode + phoneNumber).catch((err) => console.error("Message sending failed:", err));
+    await (0, sendingSMS_1.sendMessage)(`Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL_MONEY}=${donation.id}`, countryCode + phoneNumber).catch((err) => {
+        message = "Message sending failed";
+        console.error("Message sending failed:", err);
+    });
     // Respond with the created donation record
     return res
         .status(201) // Created - successful resource creation
-        .json(new ApiResponse_1.ApiResponse(201, donation, "Donation recorded successfully. Receipt has been sent."));
+        .json(new ApiResponse_1.ApiResponse(201, donation, `Donation recorded successfully, ${message}`));
 });
 exports.addDonation = addDonation;
 // Edit DONATION
@@ -80,6 +84,7 @@ const editDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const user = req.user;
     // Extract fields from request body
     const { donationId, address, donorName, aadhar, countryCode, pan, phoneNumber, amount, purpose, paymentMethod, donationCategory, } = req.body;
+    let message = "Message sent Successfully";
     if (!donationId) {
         return res
             .status(400)
@@ -126,10 +131,13 @@ const editDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         return res.status(404).json(new ApiResponse_1.ApiResponse(404, {}, "Donation not found"));
     }
     // Send invoice link asynchronously (doesn't delay response)
-    await (0, sendingSMS_1.sendMessage)(`Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL_MONEY}=${donationId}`, countryCode + phoneNumber).catch((err) => console.error("Message sending failed:", err));
+    await (0, sendingSMS_1.sendMessage)(`Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL_MONEY}=${donationId}`, countryCode + phoneNumber).catch((err) => {
+        message = "Message sending failed";
+        console.error("Message sending failed:", err);
+    });
     return res
         .status(200)
-        .json(new ApiResponse_1.ApiResponse(200, {}, "Donation updated successfully."));
+        .json(new ApiResponse_1.ApiResponse(200, {}, `Donation updated successfully,${message}`));
 });
 exports.editDonation = editDonation;
 ////////////////////////////////////////////////////////////////////////////
@@ -506,6 +514,7 @@ const addDonationKinds = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const user = req.user;
     // Extract fields from request body
     const { address, donorName, items, aadhar, countryCode, pan, phoneNumber, purpose, donationCategory, } = req.body;
+    let message = "Message sent Successfully";
     const validationError = (0, helperFunction_1.validateDonationInput)({
         donorName,
         address,
@@ -563,11 +572,14 @@ const addDonationKinds = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             .json(new ApiResponse_1.ApiResponse(500, null, "Failed to create donation record"));
     }
     // Send invoice link
-    await (0, sendingSMS_1.sendMessage)(`Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL_KIND}=${donation.id}`, countryCode + phoneNumber).catch((err) => console.error("Message sending failed:", err));
+    await (0, sendingSMS_1.sendMessage)(`Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL_KIND}=${donation.id}`, countryCode + phoneNumber).catch((err) => {
+        message = "Message sending failed";
+        console.error("Message sending failed:", err);
+    });
     // Respond with the created donation record
     return res
         .status(201) // Created - successful resource creation
-        .json(new ApiResponse_1.ApiResponse(201, donation, "Donation recorded successfully. Receipt has been sent."));
+        .json(new ApiResponse_1.ApiResponse(201, donation, `Donation recorded successfully, ${message}`));
 });
 exports.addDonationKinds = addDonationKinds;
 // edit kind donation
@@ -576,6 +588,7 @@ const editKindDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const user = req.user;
     // Extract fields from request body
     const { donationId, address, donorName, aadhar, countryCode, pan, items, phoneNumber, purpose, donationCategory, } = req.body;
+    let message = "Message sent Successfully";
     if (!donationId) {
         return res
             .status(400)
@@ -631,10 +644,13 @@ const editKindDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             .json(new ApiResponse_1.ApiResponse(504, {}, "Failed to update donation"));
     }
     // Send invoice link asynchronously (doesn't delay response)
-    await (0, sendingSMS_1.sendMessage)(`Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL_KIND}=${donationId}`, countryCode + phoneNumber).catch((err) => console.error("Message sending failed:", err));
+    await (0, sendingSMS_1.sendMessage)(`Download your donation receipt:${process.env.DOWNLOAD_RECEIPT_URL_KIND}=${donationId}`, countryCode + phoneNumber).catch((err) => {
+        message = "Message sending failed";
+        console.error("Message sending failed:", err);
+    });
     return res
         .status(200)
-        .json(new ApiResponse_1.ApiResponse(200, {}, "Donation updated successfully."));
+        .json(new ApiResponse_1.ApiResponse(200, {}, `Donation updated successfully, ${message}`));
 });
 exports.editKindDonation = editKindDonation;
 //////////////////////////////////////////////////////////////////////////////////////
