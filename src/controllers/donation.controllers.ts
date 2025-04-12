@@ -1371,11 +1371,13 @@ const searchKindsDonationsByDateExcel = asyncHandler(
           aadhar: true,
           pan: true,
           items: true, // Optional: exclude if heavy
+
           _count: { select: { items: true } },
         },
       }),
     ]);
 
+    console.log(donations);
     return res.status(200).json(
       new ApiResponse(
         200,

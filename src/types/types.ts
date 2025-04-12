@@ -19,6 +19,12 @@ interface SearchPaginationParams {
   limit: number;
   skip: number;
 }
+interface Items {
+  id?: any;
+  name: string;
+  quantity: string;
+  approxAmount: number;
+}
 // modify the code such that all value will be string
 enum DonationCategory {
   SCHOOL_HOSTEL_OPERATIONS = "Donation for operational activities of school and hostel",
@@ -42,4 +48,5 @@ export {
   DonationCategory,
   PaymentMethod,
   SearchPaginationParams,
+  Items,
 };

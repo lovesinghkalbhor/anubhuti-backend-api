@@ -1,4 +1,4 @@
-import { DonationCategory, PaymentMethod } from "../types/types";
+import { DonationCategory, Items, PaymentMethod } from "../types/types";
 import { ApiResponse } from "../utils/ApiResponse";
 
 const validateDonationInput = ({
@@ -26,12 +26,15 @@ const validateDonationInput = ({
   donationCategory?: string;
   paymentMethod?: string;
   donationType: string;
-  items: [];
+  items: Items[];
 }): ApiResponse | null => {
   // Validate items structure
   if (donationType == "kind") {
     if (!Array.isArray(items)) {
       return new ApiResponse(422, null, "Items must be provided as an array");
+    }
+    if (!items.length) {
+      return new ApiResponse(422, null, "Donation can not be empty");
     }
   } else {
     if (!amount && Number(amount) <= 0) {
