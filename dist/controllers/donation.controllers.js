@@ -36,12 +36,11 @@ const addDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         return res.status(validationError.statusCode).json(validationError);
     }
     // Generate receipt number
-    const lastDonationPromise = prismaObject_1.default.donation.findFirst({
-        orderBy: { receiptNo: "desc" },
+    const lastDonationPromise = await prismaObject_1.default.donation.findFirst({
+        orderBy: { id: "desc" },
         select: { receiptNo: true }, // select only needed field for performance
     });
-    const [lastDonation] = await Promise.all([lastDonationPromise]);
-    const receiptNo = (0, helperFunction_1.receiptNoGenerator)(lastDonation ? lastDonation.receiptNo : "", "M");
+    const receiptNo = (0, helperFunction_1.receiptNoGenerator)(lastDonationPromise ? lastDonationPromise.receiptNo : "", "M");
     // const receiptNo = lastDonation ? lastDonation.receiptNo + 1 : 1; // Increment receipt number or start with 1
     // Create a new donation record
     const donation = await prismaObject_1.default.donation.create({
@@ -534,7 +533,7 @@ const addDonationKinds = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const filterItems = (0, helperFunction_1.filteredMissingFieldsObjectFromItems)(items);
     // Generate receipt number
     const lastDonation = await prismaObject_1.default.donationKinds.findFirst({
-        orderBy: { receiptNo: "desc" },
+        orderBy: { id: "desc" },
     });
     const receiptNo = (0, helperFunction_1.receiptNoGenerator)(lastDonation ? lastDonation.receiptNo : "", "K");
     // Create a new donation record
@@ -940,6 +939,7 @@ const searchKindsDonationsByDateExcel = (0, asyncHandler_1.asyncHandler)(async (
             },
         }),
     ]);
+    console.log(donations);
     return res.status(200).json(new ApiResponse_1.ApiResponse(200, {
         donations,
         pagination: {

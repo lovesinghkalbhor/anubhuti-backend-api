@@ -11,6 +11,9 @@ const validateDonationInput = ({ countryCode, phoneNumber, donorName, address, p
         if (!Array.isArray(items)) {
             return new ApiResponse_1.ApiResponse(422, null, "Items must be provided as an array");
         }
+        if (!items.length) {
+            return new ApiResponse_1.ApiResponse(422, null, "Donation can not be empty");
+        }
     }
     else {
         if (!amount && Number(amount) <= 0) {
