@@ -56,14 +56,13 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
   }
 
   // Generate receipt number
-  const lastDonationPromise = prisma.donation.findFirst({
-    orderBy: { receiptNo: "desc" },
+  const lastDonationPromise = await prisma.donation.findFirst({
+    orderBy: { id: "desc" },
     select: { receiptNo: true }, // select only needed field for performance
   });
 
-  const [lastDonation] = await Promise.all([lastDonationPromise]);
   const receiptNo = receiptNoGenerator(
-    lastDonation ? lastDonation.receiptNo : "",
+    lastDonationPromise ? lastDonationPromise.receiptNo : "",
     "M"
   );
   // const receiptNo = lastDonation ? lastDonation.receiptNo + 1 : 1; // Increment receipt number or start with 1
@@ -786,7 +785,7 @@ const addDonationKinds = asyncHandler(async (req: Request, res: Response) => {
 
   // Generate receipt number
   const lastDonation = await prisma.donationKinds.findFirst({
-    orderBy: { receiptNo: "desc" },
+    orderBy: { id: "desc" },
   });
 
   const receiptNo = receiptNoGenerator(
