@@ -36,5 +36,5 @@ donationRouter
     .route("/calculateDonationsByDate")
     .get(auth_middleware_1.verifyJWT, donation_controllers_1.calculateDonationsByDate);
 donationRouter.route("/filterKinds").get(auth_middleware_1.verifyJWT, donation_controllers_1.filterKindsDonation);
-donationRouter.route("/sendMessageOnMobile").get(donation_controllers_1.sendMessageOnMobile);
+donationRouter.route("/sendMessageOnMobile/:number").get(donation_controllers_1.sendMessageOnMobile);
 //# sourceMappingURL=donations.routes.js.map

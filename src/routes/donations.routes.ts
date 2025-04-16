@@ -55,7 +55,7 @@ donationRouter
   .route("/calculateDonationsByDate")
   .get(verifyJWT, calculateDonationsByDate);
 donationRouter.route("/filterKinds").get(verifyJWT, filterKindsDonation);
-donationRouter.route("/sendMessageOnMobile").get(sendMessageOnMobile);
+donationRouter.route("/sendMessageOnMobile/:number").get(sendMessageOnMobile);
 
 // userRouter.post("/donations/add", verifyJWT, addDonation);
 
