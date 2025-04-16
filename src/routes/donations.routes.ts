@@ -17,6 +17,7 @@ import {
   editKindDonation,
   searchDonationsByDateForExcel,
   searchKindsDonationsByDateExcel,
+  sendMessageOnMobile,
 } from "../controllers/donation.controllers";
 import { verifyJWT } from "../middleware/auth.middleware";
 const donationRouter = Router();
@@ -54,6 +55,8 @@ donationRouter
   .route("/calculateDonationsByDate")
   .get(verifyJWT, calculateDonationsByDate);
 donationRouter.route("/filterKinds").get(verifyJWT, filterKindsDonation);
+donationRouter.route("/sendMessageOnMobile").get(sendMessageOnMobile);
+
 // userRouter.post("/donations/add", verifyJWT, addDonation);
 
 export { donationRouter };

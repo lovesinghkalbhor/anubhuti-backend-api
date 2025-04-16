@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchKindsDonationsByDateExcel = exports.searchDonationsByDateForExcel = exports.editKindDonation = exports.editDonation = exports.getDonationKindsList = exports.searchKindsDonorByDetails = exports.filterKindsDonation = exports.searchKindsDonationsByDate = exports.getKindsDonationById = exports.filterDonation = exports.calculateDonationsByDate = exports.searchDonationsByDate = exports.searchDonorByDetails = exports.getDonationById = exports.addDonationKinds = exports.addDonation = exports.getDonationList = void 0;
+exports.sendMessageOnMobile = exports.searchKindsDonationsByDateExcel = exports.searchDonationsByDateForExcel = exports.editKindDonation = exports.editDonation = exports.getDonationKindsList = exports.searchKindsDonorByDetails = exports.filterKindsDonation = exports.searchKindsDonationsByDate = exports.getKindsDonationById = exports.filterDonation = exports.calculateDonationsByDate = exports.searchDonationsByDate = exports.searchDonorByDetails = exports.getDonationById = exports.addDonationKinds = exports.addDonation = exports.getDonationList = void 0;
 const asyncHandler_1 = require("../utils/asyncHandler");
 const ApiResponse_1 = require("../utils/ApiResponse");
 const prismaObject_1 = __importDefault(require("../utils/prismaObject"));
@@ -974,4 +974,12 @@ const getKindsDonationById = (0, asyncHandler_1.asyncHandler)(async (req, res) =
         .json(new ApiResponse_1.ApiResponse(200, donation, "Donation retrieved successfully"));
 });
 exports.getKindsDonationById = getKindsDonationById;
+const sendMessageOnMobile = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const { number } = req.params;
+    await (0, sendingSMS_1.sendMessage)("Thank you for contacting Anubhuti vision seva sansthan, an organization that has been working for disabled children for over 15 years. We warmly invite you to visit us, bless us with your presence, guide us with your wisdom, and support us in our mission for humanity.", number).catch((err) => {
+        "Message sending failed";
+        console.error("Message sending failed:", err);
+    });
+});
+exports.sendMessageOnMobile = sendMessageOnMobile;
 //# sourceMappingURL=donation.controllers.js.map

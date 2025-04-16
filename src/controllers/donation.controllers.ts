@@ -1422,6 +1422,18 @@ const getKindsDonationById = asyncHandler(
   }
 );
 
+const sendMessageOnMobile = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { number } = req.params;
+    await sendMessage(
+      "Thank you for contacting Anubhuti vision seva sansthan, an organization that has been working for disabled children for over 15 years. We warmly invite you to visit us, bless us with your presence, guide us with your wisdom, and support us in our mission for humanity.",
+      number
+    ).catch((err) => {
+      "Message sending failed";
+      console.error("Message sending failed:", err);
+    });
+  }
+);
 export {
   getDonationList,
   addDonation,
@@ -1440,4 +1452,5 @@ export {
   editKindDonation,
   searchDonationsByDateForExcel,
   searchKindsDonationsByDateExcel,
+  sendMessageOnMobile,
 };
