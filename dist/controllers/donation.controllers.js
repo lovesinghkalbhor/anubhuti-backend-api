@@ -16,7 +16,7 @@ const types_1 = require("../types/types");
 const addDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const user = req.user;
     // Extract fields from request body
-    const { countryCode, phoneNumber, donorName, address, purpose, amount, aadhar, pan, paymentMethod, donationCategory, } = req.body;
+    const { countryCode, phoneNumber, donorName, address, purpose, amount, aadhar, pan, paymentMethod, donationCategory, donationDate, } = req.body;
     let message = "Message sent Successfully";
     const validationError = (0, helperFunction_1.validateDonationInput)({
         donorName,
@@ -29,6 +29,7 @@ const addDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         countryCode,
         donationCategory,
         paymentMethod,
+        donationDate,
         items: [],
         donationType: "money",
     });
@@ -49,6 +50,7 @@ const addDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             authorizedPersonName: user.name,
             authorizedPersonId: user.id,
             donorName,
+            date: new Date(donationDate),
             countryCode,
             aadhar: String(aadhar),
             pan: String(pan),
@@ -82,7 +84,7 @@ exports.addDonation = addDonation;
 const editDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const user = req.user;
     // Extract fields from request body
-    const { donationId, address, donorName, aadhar, countryCode, pan, phoneNumber, amount, purpose, paymentMethod, donationCategory, } = req.body;
+    const { donationId, address, donorName, aadhar, countryCode, pan, phoneNumber, amount, purpose, paymentMethod, donationCategory, donationDate, } = req.body;
     let message = "Message sent Successfully";
     if (!donationId) {
         return res
@@ -100,6 +102,7 @@ const editDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         countryCode,
         donationCategory,
         paymentMethod,
+        donationDate,
         items: [],
         donationType: "money",
     });
@@ -113,6 +116,7 @@ const editDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             authorizedPersonName: user.name,
             authorizedPersonId: user.id,
             donorName,
+            date: donationDate,
             aadhar,
             countryCode,
             pan,
@@ -156,7 +160,7 @@ const getDonationList = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         prismaObject_1.default.donation.findMany({
             skip,
             take: limit,
-            orderBy: { date: "desc" },
+            orderBy: { id: "desc" },
             select: {
                 id: true,
                 receiptNo: true,
@@ -512,7 +516,7 @@ exports.getDonationById = getDonationById;
 const addDonationKinds = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const user = req.user;
     // Extract fields from request body
-    const { address, donorName, items, aadhar, countryCode, pan, phoneNumber, purpose, donationCategory, } = req.body;
+    const { address, donorName, items, aadhar, countryCode, pan, phoneNumber, purpose, donationCategory, donationDate, } = req.body;
     let message = "Message sent Successfully";
     const validationError = (0, helperFunction_1.validateDonationInput)({
         donorName,
@@ -524,6 +528,7 @@ const addDonationKinds = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         countryCode,
         items,
         donationCategory,
+        donationDate,
         donationType: "kind",
     });
     if (validationError) {
@@ -544,6 +549,7 @@ const addDonationKinds = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             authorizedPersonId: user.id,
             donorName,
             countryCode,
+            date: donationDate,
             aadhar: String(aadhar),
             pan: String(pan),
             phoneNumber: String(phoneNumber),
@@ -586,7 +592,7 @@ exports.addDonationKinds = addDonationKinds;
 const editKindDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const user = req.user;
     // Extract fields from request body
-    const { donationId, address, donorName, aadhar, countryCode, pan, items, phoneNumber, purpose, donationCategory, } = req.body;
+    const { donationId, address, donorName, aadhar, countryCode, pan, items, phoneNumber, purpose, donationCategory, donationDate, } = req.body;
     let message = "Message sent Successfully";
     if (!donationId) {
         return res
@@ -604,6 +610,7 @@ const editKindDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         items,
         donationCategory,
         donationType: "kind",
+        donationDate,
     });
     if (validationError) {
         return res.status(validationError.statusCode).json(validationError);
@@ -618,6 +625,7 @@ const editKindDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             authorizedPersonId: user.id,
             donorName,
             countryCode,
+            date: donationDate,
             aadhar: String(aadhar),
             pan: String(pan),
             phoneNumber: String(phoneNumber),

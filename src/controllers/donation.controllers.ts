@@ -33,6 +33,7 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
     pan,
     paymentMethod,
     donationCategory,
+    donationDate,
   } = req.body;
   let message = "Message sent Successfully";
 
@@ -47,6 +48,7 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
     countryCode,
     donationCategory,
     paymentMethod,
+    donationDate,
     items: [],
     donationType: "money",
   });
@@ -74,6 +76,7 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
       authorizedPersonName: user.name,
       authorizedPersonId: user.id,
       donorName,
+      date: new Date(donationDate),
       countryCode,
       aadhar: String(aadhar),
       pan: String(pan),
@@ -135,6 +138,7 @@ const editDonation = asyncHandler(async (req: Request, res: Response) => {
     purpose,
     paymentMethod,
     donationCategory,
+    donationDate,
   } = req.body;
 
   let message = "Message sent Successfully";
@@ -156,6 +160,7 @@ const editDonation = asyncHandler(async (req: Request, res: Response) => {
     countryCode,
     donationCategory,
     paymentMethod,
+    donationDate,
     items: [],
     donationType: "money",
   });
@@ -171,6 +176,7 @@ const editDonation = asyncHandler(async (req: Request, res: Response) => {
       authorizedPersonName: user.name,
       authorizedPersonId: user.id,
       donorName,
+      date: donationDate,
       aadhar,
       countryCode,
       pan,
@@ -226,7 +232,7 @@ const getDonationList = asyncHandler(async (req: Request, res: Response) => {
     prisma.donation.findMany({
       skip,
       take: limit,
-      orderBy: { date: "desc" },
+      orderBy: { id: "desc" },
       select: {
         id: true,
         receiptNo: true,
@@ -760,6 +766,7 @@ const addDonationKinds = asyncHandler(async (req: Request, res: Response) => {
     phoneNumber,
     purpose,
     donationCategory,
+    donationDate,
   } = req.body;
   let message = "Message sent Successfully";
 
@@ -773,6 +780,7 @@ const addDonationKinds = asyncHandler(async (req: Request, res: Response) => {
     countryCode,
     items,
     donationCategory,
+    donationDate,
     donationType: "kind",
   });
 
@@ -801,6 +809,7 @@ const addDonationKinds = asyncHandler(async (req: Request, res: Response) => {
       authorizedPersonId: user.id,
       donorName,
       countryCode,
+      date: donationDate,
       aadhar: String(aadhar),
       pan: String(pan),
       phoneNumber: String(phoneNumber),
@@ -875,6 +884,7 @@ const editKindDonation = asyncHandler(async (req: Request, res: Response) => {
     phoneNumber,
     purpose,
     donationCategory,
+    donationDate,
   } = req.body;
   let message = "Message sent Successfully";
   if (!donationId) {
@@ -894,6 +904,7 @@ const editKindDonation = asyncHandler(async (req: Request, res: Response) => {
     items,
     donationCategory,
     donationType: "kind",
+    donationDate,
   });
 
   if (validationError) {
@@ -911,6 +922,7 @@ const editKindDonation = asyncHandler(async (req: Request, res: Response) => {
       authorizedPersonId: user.id,
       donorName,
       countryCode,
+      date: donationDate,
       aadhar: String(aadhar),
       pan: String(pan),
       phoneNumber: String(phoneNumber),
@@ -1434,6 +1446,7 @@ const sendMessageOnMobile = asyncHandler(
     });
   }
 );
+
 export {
   getDonationList,
   addDonation,

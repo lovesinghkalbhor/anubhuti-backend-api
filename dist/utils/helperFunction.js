@@ -5,7 +5,7 @@ exports.receiptNoGenerator = receiptNoGenerator;
 exports.numberToWords = numberToWords;
 const types_1 = require("../types/types");
 const ApiResponse_1 = require("../utils/ApiResponse");
-const validateDonationInput = ({ countryCode, phoneNumber, donorName, address, purpose, amount = 0, aadhar, pan, donationCategory = "", paymentMethod = "", donationType = "", items = [], }) => {
+const validateDonationInput = ({ countryCode, phoneNumber, donorName, address, purpose, amount = 0, aadhar, pan, donationCategory = "", paymentMethod = "", donationType = "", donationDate, items = [], }) => {
     // Validate items structure
     if (donationType == "kind") {
         if (!Array.isArray(items)) {
@@ -44,6 +44,13 @@ const validateDonationInput = ({ countryCode, phoneNumber, donorName, address, p
     if (!(donationCategory in types_1.DonationCategory) &&
         !donationCategory?.startsWith("OTHER")) {
         return new ApiResponse_1.ApiResponse(400, "", "Donation Category must be valid: SCHOOL_HOSTEL_OPERATIONS, LIFETIME_MEMBERSHIP, LIFETIME_LUNCH, IN_KIND, LAND_AND_BUILDING, OTHER");
+    }
+    const parsedDate = new Date(donationDate);
+    // Check if the parsed date is valid AND if the original string was a valid representation
+    // The isNaN check is sufficient for invalid date strings (e.g., "abc"),
+    // but you might want stricter parsing if specific formats are expected.
+    if (isNaN(parsedDate.getTime())) {
+        return new ApiResponse_1.ApiResponse(400, null, "Invalid date format. Please provide a valid date string (e.g., ISO 8601 format).");
     }
     return null; // everything is valid
 };

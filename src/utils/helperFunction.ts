@@ -13,6 +13,7 @@ const validateDonationInput = ({
   donationCategory = "",
   paymentMethod = "",
   donationType = "",
+  donationDate,
   items = [],
 }: {
   countryCode?: string;
@@ -26,9 +27,11 @@ const validateDonationInput = ({
   donationCategory?: string;
   paymentMethod?: string;
   donationType: string;
+  donationDate: Date;
   items: Items[];
 }): ApiResponse | null => {
   // Validate items structure
+
   if (donationType == "kind") {
     if (!Array.isArray(items)) {
       return new ApiResponse(422, null, "Items must be provided as an array");
@@ -94,6 +97,19 @@ const validateDonationInput = ({
       400,
       "",
       "Donation Category must be valid: SCHOOL_HOSTEL_OPERATIONS, LIFETIME_MEMBERSHIP, LIFETIME_LUNCH, IN_KIND, LAND_AND_BUILDING, OTHER"
+    );
+  }
+
+  const parsedDate = new Date(donationDate);
+
+  // Check if the parsed date is valid AND if the original string was a valid representation
+  // The isNaN check is sufficient for invalid date strings (e.g., "abc"),
+  // but you might want stricter parsing if specific formats are expected.
+  if (isNaN(parsedDate.getTime())) {
+    return new ApiResponse(
+      400,
+      null,
+      "Invalid date format. Please provide a valid date string (e.g., ISO 8601 format)."
     );
   }
 
