@@ -176,7 +176,7 @@ const editDonation = asyncHandler(async (req: Request, res: Response) => {
       authorizedPersonName: user.name,
       authorizedPersonId: user.id,
       donorName,
-      date: donationDate,
+      date: new Date(donationDate),
       aadhar,
       countryCode,
       pan,
@@ -306,8 +306,9 @@ const searchDonorByDetails = asyncHandler(
         where: whereClause,
         skip,
         take: limit,
-        orderBy: { date: "desc" },
+        orderBy: { id: "desc" },
         select: {
+          id: true,
           receiptNo: true,
           authorizedPersonName: true,
           date: true,
@@ -371,6 +372,7 @@ const filterDonation = asyncHandler(async (req: Request, res: Response) => {
         )
       );
   }
+
   if (!((paymentMethod as string) in PaymentMethod) && paymentMethod != "") {
     return res
       .status(422)
@@ -387,16 +389,15 @@ const filterDonation = asyncHandler(async (req: Request, res: Response) => {
   const whereClause = {
     AND: [
       {
-        donationCategory:
-          DonationCategory[
-            (donationCategory as string).trim() as keyof typeof DonationCategory
-          ],
+        OR: [
+          { donationCategory: donationCategory as string },
+          { donationCategory: { startsWith: "OTHER" } },
+        ],
       },
       {
-        paymentMethod:
-          PaymentMethod[
-            (paymentMethod as string).trim() as keyof typeof PaymentMethod
-          ],
+        paymentMethod: {
+          startsWith: paymentMethod as string,
+        },
       },
     ],
   };
@@ -408,9 +409,10 @@ const filterDonation = asyncHandler(async (req: Request, res: Response) => {
       where: whereClause,
       skip,
       take: limit,
-      orderBy: { date: "desc" },
+      orderBy: { id: "desc" },
 
       select: {
+        id: true,
         receiptNo: true,
         authorizedPersonName: true,
         date: true,
@@ -508,8 +510,9 @@ const searchDonationsByDate = asyncHandler(
         where: whereClause,
         skip,
         take: limit,
-        orderBy: { date: "desc" },
+        orderBy: { id: "desc" },
         select: {
+          id: true,
           receiptNo: true,
           authorizedPersonName: true,
           date: true,
@@ -608,7 +611,7 @@ const searchDonationsByDateForExcel = asyncHandler(
     const [donations, totalDonations] = await Promise.all([
       prisma.donation.findMany({
         where: whereClause,
-        orderBy: { date: "desc" },
+        orderBy: { id: "desc" },
         select: {
           id: true,
           receiptNo: true,
@@ -809,7 +812,7 @@ const addDonationKinds = asyncHandler(async (req: Request, res: Response) => {
       authorizedPersonId: user.id,
       donorName,
       countryCode,
-      date: donationDate,
+      date: new Date(donationDate),
       aadhar: String(aadhar),
       pan: String(pan),
       phoneNumber: String(phoneNumber),
@@ -922,7 +925,7 @@ const editKindDonation = asyncHandler(async (req: Request, res: Response) => {
       authorizedPersonId: user.id,
       donorName,
       countryCode,
-      date: donationDate,
+      date: new Date(donationDate),
       aadhar: String(aadhar),
       pan: String(pan),
       phoneNumber: String(phoneNumber),
@@ -986,7 +989,7 @@ const getDonationKindsList = asyncHandler(
       prisma.donationKinds.findMany({
         skip,
         take: limit,
-        orderBy: { date: "desc" },
+        orderBy: { id: "desc" },
         select: {
           id: true,
           receiptNo: true,
@@ -1064,7 +1067,7 @@ const searchKindsDonorByDetails = asyncHandler(
         where: whereClause,
         skip,
         take: limit,
-        orderBy: { date: "desc" },
+        orderBy: { id: "desc" },
         select: {
           id: true,
           receiptNo: true,
@@ -1132,6 +1135,7 @@ const filterKindsDonation = asyncHandler(
           )
         );
     }
+
     if (!((paymentMethod as string) in PaymentMethod) && paymentMethod != "") {
       return res
         .status(422)
@@ -1148,19 +1152,16 @@ const filterKindsDonation = asyncHandler(
     const whereClause = {
       AND: [
         {
-          donationCategory:
-            DonationCategory[
-              (
-                donationCategory as string
-              ).trim() as keyof typeof DonationCategory
-            ],
+          OR: [
+            { donationCategory: donationCategory as string },
+            { donationCategory: { startsWith: "OTHER" } },
+          ],
         },
-        {
-          paymentMethod:
-            PaymentMethod[
-              (paymentMethod as string).trim() as keyof typeof PaymentMethod
-            ],
-        },
+        // {
+        //   paymentMethod: {
+        //     startsWith: paymentMethod as string,
+        //   },
+        // },
       ],
     };
 
@@ -1171,7 +1172,7 @@ const filterKindsDonation = asyncHandler(
         where: whereClause,
         skip,
         take: limit,
-        orderBy: { date: "desc" },
+        orderBy: { id: "desc" },
         select: {
           id: true,
           receiptNo: true,
@@ -1180,6 +1181,7 @@ const filterKindsDonation = asyncHandler(
           donorName: true,
           phoneNumber: true,
           aadhar: true,
+          donationCategory: true,
           pan: true,
           _count: { select: { items: true } },
           items: true, // Optional: remove if not needed for speed
@@ -1273,7 +1275,7 @@ const searchKindsDonationsByDate = asyncHandler(
         where: whereClause,
         skip,
         take: limit,
-        orderBy: { date: "desc" },
+        orderBy: { id: "desc" },
         select: {
           id: true,
           receiptNo: true,
@@ -1371,7 +1373,7 @@ const searchKindsDonationsByDateExcel = asyncHandler(
       prisma.donationKinds.count({ where: whereClause }),
       prisma.donationKinds.findMany({
         where: whereClause,
-        orderBy: { date: "desc" },
+        orderBy: { id: "desc" },
         select: {
           id: true,
           receiptNo: true,

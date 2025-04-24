@@ -14,8 +14,8 @@ var DonationCategory;
 var PaymentMethod;
 (function (PaymentMethod) {
     PaymentMethod["CASH"] = "CASH";
-    // CHEQUE = "Cheque",
-    // UPI = "UPI",
-    // DD = "DD",
+    PaymentMethod["CHEQUE"] = "CHEQUE";
+    PaymentMethod["UPI"] = "UPI";
+    PaymentMethod["DD"] = "DD";
 })(PaymentMethod || (exports.PaymentMethod = PaymentMethod = {}));
 //# sourceMappingURL=types.js.map

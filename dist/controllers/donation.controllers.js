@@ -116,7 +116,7 @@ const editDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             authorizedPersonName: user.name,
             authorizedPersonId: user.id,
             donorName,
-            date: donationDate,
+            date: new Date(donationDate),
             aadhar,
             countryCode,
             pan,
@@ -216,8 +216,9 @@ const searchDonorByDetails = (0, asyncHandler_1.asyncHandler)(async (req, res) =
             where: whereClause,
             skip,
             take: limit,
-            orderBy: { date: "desc" },
+            orderBy: { id: "desc" },
             select: {
+                id: true,
                 receiptNo: true,
                 authorizedPersonName: true,
                 date: true,
@@ -272,10 +273,15 @@ const filterDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const whereClause = {
         AND: [
             {
-                donationCategory: types_1.DonationCategory[donationCategory.trim()],
+                OR: [
+                    { donationCategory: donationCategory },
+                    { donationCategory: { startsWith: "OTHER" } },
+                ],
             },
             {
-                paymentMethod: types_1.PaymentMethod[paymentMethod.trim()],
+                paymentMethod: {
+                    startsWith: paymentMethod,
+                },
             },
         ],
     };
@@ -286,8 +292,9 @@ const filterDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             where: whereClause,
             skip,
             take: limit,
-            orderBy: { date: "desc" },
+            orderBy: { id: "desc" },
             select: {
+                id: true,
                 receiptNo: true,
                 authorizedPersonName: true,
                 date: true,
@@ -351,8 +358,9 @@ const searchDonationsByDate = (0, asyncHandler_1.asyncHandler)(async (req, res) 
             where: whereClause,
             skip,
             take: limit,
-            orderBy: { date: "desc" },
+            orderBy: { id: "desc" },
             select: {
+                id: true,
                 receiptNo: true,
                 authorizedPersonName: true,
                 date: true,
@@ -416,7 +424,7 @@ const searchDonationsByDateForExcel = (0, asyncHandler_1.asyncHandler)(async (re
     const [donations, totalDonations] = await Promise.all([
         prismaObject_1.default.donation.findMany({
             where: whereClause,
-            orderBy: { date: "desc" },
+            orderBy: { id: "desc" },
             select: {
                 id: true,
                 receiptNo: true,
@@ -549,7 +557,7 @@ const addDonationKinds = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             authorizedPersonId: user.id,
             donorName,
             countryCode,
-            date: donationDate,
+            date: new Date(donationDate),
             aadhar: String(aadhar),
             pan: String(pan),
             phoneNumber: String(phoneNumber),
@@ -625,7 +633,7 @@ const editKindDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
             authorizedPersonId: user.id,
             donorName,
             countryCode,
-            date: donationDate,
+            date: new Date(donationDate),
             aadhar: String(aadhar),
             pan: String(pan),
             phoneNumber: String(phoneNumber),
@@ -671,7 +679,7 @@ const getDonationKindsList = (0, asyncHandler_1.asyncHandler)(async (req, res) =
         prismaObject_1.default.donationKinds.findMany({
             skip,
             take: limit,
-            orderBy: { date: "desc" },
+            orderBy: { id: "desc" },
             select: {
                 id: true,
                 receiptNo: true,
@@ -728,7 +736,7 @@ const searchKindsDonorByDetails = (0, asyncHandler_1.asyncHandler)(async (req, r
             where: whereClause,
             skip,
             take: limit,
-            orderBy: { date: "desc" },
+            orderBy: { id: "desc" },
             select: {
                 id: true,
                 receiptNo: true,
@@ -785,11 +793,16 @@ const filterKindsDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) =>
     const whereClause = {
         AND: [
             {
-                donationCategory: types_1.DonationCategory[donationCategory.trim()],
+                OR: [
+                    { donationCategory: donationCategory },
+                    { donationCategory: { startsWith: "OTHER" } },
+                ],
             },
-            {
-                paymentMethod: types_1.PaymentMethod[paymentMethod.trim()],
-            },
+            // {
+            //   paymentMethod: {
+            //     startsWith: paymentMethod as string,
+            //   },
+            // },
         ],
     };
     // Run count and data fetch in parallel
@@ -799,7 +812,7 @@ const filterKindsDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) =>
             where: whereClause,
             skip,
             take: limit,
-            orderBy: { date: "desc" },
+            orderBy: { id: "desc" },
             select: {
                 id: true,
                 receiptNo: true,
@@ -808,6 +821,7 @@ const filterKindsDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) =>
                 donorName: true,
                 phoneNumber: true,
                 aadhar: true,
+                donationCategory: true,
                 pan: true,
                 _count: { select: { items: true } },
                 items: true, // Optional: remove if not needed for speed
@@ -867,7 +881,7 @@ const searchKindsDonationsByDate = (0, asyncHandler_1.asyncHandler)(async (req, 
             where: whereClause,
             skip,
             take: limit,
-            orderBy: { date: "desc" },
+            orderBy: { id: "desc" },
             select: {
                 id: true,
                 receiptNo: true,
@@ -932,7 +946,7 @@ const searchKindsDonationsByDateExcel = (0, asyncHandler_1.asyncHandler)(async (
         prismaObject_1.default.donationKinds.count({ where: whereClause }),
         prismaObject_1.default.donationKinds.findMany({
             where: whereClause,
-            orderBy: { date: "desc" },
+            orderBy: { id: "desc" },
             select: {
                 id: true,
                 receiptNo: true,
