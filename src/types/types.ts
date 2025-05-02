@@ -32,6 +32,9 @@ enum DonationCategory {
   LIFETIME_LUNCH = "Donation for Life time lunch",
   IN_KIND = "Donation in-kind",
   LAND_AND_BUILDING = "Donation for Land and building",
+  FEES = "Fees",
+  MEMORIAL_DAY = "Memorial day",
+  BIRTHDAY_CELEBRATION = "Birthday celebration",
   OTHER = "Donation for Any other",
 }
 
