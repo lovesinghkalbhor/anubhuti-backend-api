@@ -131,113 +131,124 @@
         color: black;
         text-decoration: none;
       }
+
+      .letter img {
+        max-width: -webkit-fill-available;
+      }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   </head>
   <body>
-    <div class="a4-page" id="container">
-      <div class="header">
-        <div class="logo">
-          <!-- <img src="http://localhost:3000/images/AnubhutiLogo.png" alt="" /> -->
-          <!-- for server -->
-          <img
-            src="http://anubhutivisionss.com/images/AnubhutiLogo.png"
-            alt=""
-          />
-        </div>
-        <div class="org-details">
-          <div class="reg-number">
-            Registration No. & Date : 11730/09 - 06 May 2009
-          </div>
-          <div class="org-name">ANUBHUTI VISION SEVA SANSTHAN</div>
-          <div class="org-address">
-            68-2 Mayakhedi, Near Omaxe City-I, Bypass Road, Indore, (M.P.)
-            India<br />
-            Regd. Off. : 203-A, Slice No. 4, Scheme No. 78, Aranya Nagar,<br />
-            Indore. Phone: 0731-4050114, Mobile : 98267-44114
-          </div>
-        </div>
-        <div class="receipt-number">
-          <div>RECEIPT</div>
-          <div>No.: <%= donation.receiptNo %></div>
-          <div>Date: <%= new Date(donation.date).toLocaleDateString() %></div>
+    <div id="container">
+      <div class="a4-page">
+        <div class="letter">
+          <img src="http://localhost:3000/images/letter.jpg" alt="" />
         </div>
       </div>
-      <form>
-        <div class="form-field">
-          <label>Received with thanks from M/s.</label>
-          <h6><%= donation.donorName %></h6>
+      <div class="a4-page" id="container">
+        <div class="header">
+          <div class="logo">
+            <!-- <img src="http://localhost:3000/images/AnubhutiLogo.png" alt="" /> -->
+            <!-- for server -->
+            <img
+              src="http://anubhutivisionss.com/images/AnubhutiLogo.png"
+              alt=""
+            />
+          </div>
+          <div class="org-details">
+            <div class="reg-number">
+              Registration No. & Date : 11730/09 - 06 May 2009
+            </div>
+            <div class="org-name">ANUBHUTI VISION SEVA SANSTHAN</div>
+            <div class="org-address">
+              68-2 Mayakhedi, Near Omaxe City-I, Bypass Road, Indore, (M.P.)
+              India<br />
+              Regd. Off. : 203-A, Slice No. 4, Scheme No. 78, Aranya Nagar,<br />
+              Indore. Phone: 0731-4050114, Mobile : 98267-44114
+            </div>
+          </div>
+          <div class="receipt-number">
+            <div>RECEIPT</div>
+            <div>No.: <%= donation.receiptNo %></div>
+            <div>Date: <%= new Date(donation.date).toLocaleDateString() %></div>
+          </div>
         </div>
-        <!--  -->
-        <div class="form-field">
-          <label>Aadhar Card / PAN No.</label>
-          <h6><%= donation.pan || donation.aadhar || 'N/A' %></h6>
-          <span style="float: right">
-            <label>Mobile</label>
-            <h6 style="width: 200px"><%= donation.phoneNumber %></h6>
-          </span>
-        </div>
-
-        <div class="form-field">
-          <label>Address</label>
-          <h6><%= donation.address || 'N/A' %></h6>
-        </div>
-
-        <div class="form-field">
-          <label>The sum of Rs. in words</label>
-          <h6><%= amountInWords %> /-</h6>
-        </div>
-        <div>
+        <form>
           <div class="form-field">
-            <label>Purpose</label>
-            <h6 style="width: 60%"><%=donation.purpose %></h6>
+            <label>Received with thanks from M/s.</label>
+            <h6><%= donation.donorName %></h6>
           </div>
-          <div class="amount-box" style="float: right">
-            <div style="text-align: center; padding-bottom: 10px">
-              Rs. <%= donation.amount %> /-
-            </div>
+          <!--  -->
+          <div class="form-field">
+            <label>Aadhar Card / PAN No.</label>
+            <h6><%= donation.pan || donation.aadhar || 'N/A' %></h6>
+            <span style="float: right">
+              <label>Mobile</label>
+              <h6 style="width: 200px"><%= donation.phoneNumber %></h6>
+            </span>
           </div>
-        </div>
 
-        <div class="signature-section">
+          <div class="form-field">
+            <label>Address</label>
+            <h6><%= donation.address || 'N/A' %></h6>
+          </div>
+
+          <div class="form-field">
+            <label>The sum of Rs. in words</label>
+            <h6><%= amountInWords %> /-</h6>
+          </div>
           <div>
-            <div style="text-align: left">
-              <label>Payment Mode : </label>
-              <span><%=donation.paymentMethod %></span>
+            <div class="form-field">
+              <label>Purpose</label>
+              <h6 style="width: 60%"><%=donation.purpose %></h6>
             </div>
-
-            <div style="text-align: left">
-              <div>
-                <label>Accountant / Authorised Person :</label>
-                <span> <%= formattedName %> </span>
-              </div>
-              <div>
-                <label>For : </label>
-                <span>Anubhuti Vision Seva Sansthan</span>
+            <div class="amount-box" style="float: right">
+              <div style="text-align: center; padding-bottom: 10px">
+                Rs. <%= donation.amount %> /-
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="donation-info">
-          Donation Exempted U/S 80G of IT ACT<br />
-          CIT-I/Ind/Tech/80-G/20/2011-12<br />
-          PAN No.: AABAA7262L
-        </div>
+          <div class="signature-section">
+            <div>
+              <div style="text-align: left">
+                <label>Payment Mode : </label>
+                <span><%=donation.paymentMethod %></span>
+              </div>
 
-        <div class="footer">
-          <a href="https://www.anubhutivisions.org"
-            >Visit us: www.anubhutivisions.org</a
-          >
-          <a href="mailto:anubhutivisionsss@gmail.com"
-            >Contact us: anubhutivisionsss@gmail.com</a
-          >
-        </div>
-      </form>
-      <button type="button" onclick="handleConvertToPDF(`<%= donation.id%>`)">
-        Download as PDF
-      </button>
+              <div style="text-align: left">
+                <div>
+                  <label>Accountant / Authorised Person :</label>
+                  <span> <%= formattedName %> </span>
+                </div>
+                <div>
+                  <label>For : </label>
+                  <span>Anubhuti Vision Seva Sansthan</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="donation-info">
+            Donation Exempted U/S 80G of IT ACT<br />
+            CIT-I/Ind/Tech/80-G/20/2011-12<br />
+            PAN No.: AABAA7262L
+          </div>
+
+          <div class="footer">
+            <a href="https://www.anubhutivisions.org"
+              >Visit us: www.anubhutivisions.org</a
+            >
+            <a href="mailto:anubhutivisionsss@gmail.com"
+              >Contact us: anubhutivisionsss@gmail.com</a
+            >
+          </div>
+        </form>
+        <button type="button" onclick="handleConvertToPDF(`<%= donation.id%>`)">
+          Download as PDF
+        </button>
+      </div>
     </div>
 
     <script>
@@ -268,32 +279,35 @@
             iframe.contentWindow.document.close();
 
             // Wait for iframe content to load completely
-            iframe.onload = () => {
+            iframe.onload = async () => {
               // Get the container element from within the iframe
-              const container =
-                iframe.contentWindow.document.getElementById("container");
+              const pages =
+                iframe.contentWindow.document.querySelectorAll(".a4-page");
 
-              if (!container) {
-                console.error("Container element not found in the loaded HTML");
+              if (!pages.length) {
+                console.error("No .a4-page elements found");
                 document.body.removeChild(iframe);
                 return;
               }
+              const pdf = new jspdf.jsPDF("p", "mm", "a4");
 
-              // Use html2canvas on the container within the iframe
-              html2canvas(container, {
-                useCORS: true,
-                allowTaint: true,
-                scale: 2, // HIGH RESOLUTION for print
-              }).then((canvas) => {
-                const pdf = new jspdf.jsPDF("p", "mm", "a4");
+              for (let i = 0; i < pages.length; i++) {
+                const canvas = await html2canvas(pages[i], {
+                  useCORS: true,
+                  allowTaint: true,
+                  scale: 1.5,
+                });
+
                 const imgData = canvas.toDataURL("image/png");
+                const pdfWidth = 210;
+                const pdfHeight = 297;
 
-                const pdfWidth = 210; // A4 width in mm
-                const pdfHeight = 297; // A4 height in mm
-
+                if (i !== 0) pdf.addPage();
                 pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-                pdf.save("donation-receipt.pdf");
-              });
+              }
+
+              pdf.save("donation-receipt.pdf");
+              document.body.removeChild(iframe); // Clean up
             };
           })
           .catch((error) => {
