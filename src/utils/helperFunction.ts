@@ -63,6 +63,14 @@ const validateDonationInput = ({
         return new ApiResponse(400, null, "Invalid DD number");
       }
     }
+
+    if (!aadhar && !pan) {
+      return new ApiResponse(
+        422,
+        null,
+        "Either Aadhar or PAN number is required for donation"
+      );
+    }
   }
 
   if (!countryCode || !phoneNumber) {
@@ -78,14 +86,6 @@ const validateDonationInput = ({
       422,
       null,
       "Required fields missing: donor name, address, and purpose are mandatory"
-    );
-  }
-
-  if (!aadhar && !pan) {
-    return new ApiResponse(
-      422,
-      null,
-      "Either Aadhar or PAN number is required for donation"
     );
   }
 

@@ -31,15 +31,15 @@ const validateDonationInput = ({ countryCode, phoneNumber, donorName, address, p
                 return new ApiResponse_1.ApiResponse(400, null, "Invalid DD number");
             }
         }
+        if (!aadhar && !pan) {
+            return new ApiResponse_1.ApiResponse(422, null, "Either Aadhar or PAN number is required for donation");
+        }
     }
     if (!countryCode || !phoneNumber) {
         return new ApiResponse_1.ApiResponse(400, null, "Kindly enter the correct phone number including the country code");
     }
     if (!address || !donorName || !purpose?.trim()) {
         return new ApiResponse_1.ApiResponse(422, null, "Required fields missing: donor name, address, and purpose are mandatory");
-    }
-    if (!aadhar && !pan) {
-        return new ApiResponse_1.ApiResponse(422, null, "Either Aadhar or PAN number is required for donation");
     }
     if (!(donationCategory in types_1.DonationCategory) &&
         !donationCategory?.startsWith("OTHER")) {
