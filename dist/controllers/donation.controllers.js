@@ -274,8 +274,12 @@ const filterDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         AND: [
             {
                 OR: [
-                    { donationCategory: donationCategory },
-                    { donationCategory: { startsWith: "OTHER" } },
+                    {
+                        donationCategory: {
+                            startsWith: types_1.DonationCategory[donationCategory],
+                        },
+                    },
+                    // { donationCategory: { startsWith: "OTHER" } },
                 ],
             },
             {

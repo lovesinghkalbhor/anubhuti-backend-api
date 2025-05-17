@@ -12,7 +12,7 @@ var DonationCategory;
     DonationCategory["FEES"] = "Fees";
     DonationCategory["MEMORIAL_DAY"] = "Memorial day";
     DonationCategory["BIRTHDAY_CELEBRATION"] = "Birthday celebration";
-    DonationCategory["OTHER"] = "Donation for Any other";
+    DonationCategory["OTHER"] = "OTHER";
 })(DonationCategory || (exports.DonationCategory = DonationCategory = {}));
 var PaymentMethod;
 (function (PaymentMethod) {

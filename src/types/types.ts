@@ -35,7 +35,7 @@ enum DonationCategory {
   FEES = "Fees",
   MEMORIAL_DAY = "Memorial day",
   BIRTHDAY_CELEBRATION = "Birthday celebration",
-  OTHER = "Donation for Any other",
+  OTHER = "OTHER",
 }
 
 enum PaymentMethod {

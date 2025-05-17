@@ -390,8 +390,15 @@ const filterDonation = asyncHandler(async (req: Request, res: Response) => {
     AND: [
       {
         OR: [
-          { donationCategory: donationCategory as string },
-          { donationCategory: { startsWith: "OTHER" } },
+          {
+            donationCategory: {
+              startsWith:
+                DonationCategory[
+                  donationCategory as keyof typeof DonationCategory
+                ],
+            },
+          },
+          // { donationCategory: { startsWith: "OTHER" } },
         ],
       },
       {
