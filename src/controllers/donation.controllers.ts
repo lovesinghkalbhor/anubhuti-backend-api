@@ -1160,8 +1160,15 @@ const filterKindsDonation = asyncHandler(
       AND: [
         {
           OR: [
-            { donationCategory: donationCategory as string },
-            { donationCategory: { startsWith: "OTHER" } },
+            {
+              donationCategory: {
+                startsWith:
+                  DonationCategory[
+                    donationCategory as keyof typeof DonationCategory
+                  ],
+              },
+            },
+            // { donationCategory: { startsWith: "OTHER" } },
           ],
         },
         // {
@@ -1397,7 +1404,6 @@ const searchKindsDonationsByDateExcel = asyncHandler(
       }),
     ]);
 
-    console.log(donations);
     return res.status(200).json(
       new ApiResponse(
         200,
