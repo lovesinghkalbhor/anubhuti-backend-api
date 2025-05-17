@@ -142,14 +142,12 @@ exports.DownloadKindsInvoice = DownloadKindsInvoice;
 /////////////////////////////////////////
 const DownloadInvoiceMobile = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const { id } = req.query;
-    console.log("this is called");
     // Validate the phone number
     if (!id) {
         return res
             .status(401)
             .json(new ApiResponse_1.ApiResponse(401, {}, "Invoice number is required"));
     }
-    console.log(id);
     // Query the database for the donor by phone number
     const results = await prismaObject_1.default.donation.findFirst({
         where: {

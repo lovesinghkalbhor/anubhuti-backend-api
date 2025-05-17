@@ -798,8 +798,12 @@ const filterKindsDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) =>
         AND: [
             {
                 OR: [
-                    { donationCategory: donationCategory },
-                    { donationCategory: { startsWith: "OTHER" } },
+                    {
+                        donationCategory: {
+                            startsWith: types_1.DonationCategory[donationCategory],
+                        },
+                    },
+                    // { donationCategory: { startsWith: "OTHER" } },
                 ],
             },
             // {
@@ -965,7 +969,6 @@ const searchKindsDonationsByDateExcel = (0, asyncHandler_1.asyncHandler)(async (
             },
         }),
     ]);
-    console.log(donations);
     return res.status(200).json(new ApiResponse_1.ApiResponse(200, {
         donations,
         pagination: {
