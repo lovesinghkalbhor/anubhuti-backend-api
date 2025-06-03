@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateDonationInput = exports.filteredMissingFieldsObjectFromItems = void 0;
+exports.validateDonationInputIMPS = exports.validateDonationInput = exports.filteredMissingFieldsObjectFromItems = void 0;
 exports.receiptNoGenerator = receiptNoGenerator;
 exports.numberToWords = numberToWords;
 const types_1 = require("../types/types");
 const ApiResponse_1 = require("../utils/ApiResponse");
 const validateDonationInput = ({ countryCode, phoneNumber, donorName, address, purpose, amount = 0, aadhar, pan, donationCategory = "", paymentMethod = "", donationType = "", donationDate, items = [], }) => {
     // Validate items structure
+    //validation for kind donation
     if (donationType == "kind") {
         if (!Array.isArray(items)) {
             return new ApiResponse_1.ApiResponse(422, null, "Items must be provided as an array");
@@ -14,6 +15,7 @@ const validateDonationInput = ({ countryCode, phoneNumber, donorName, address, p
         if (!items.length) {
             return new ApiResponse_1.ApiResponse(422, null, "Donation can not be empty");
         }
+        //validation for money donation
     }
     else {
         if (!amount && Number(amount) <= 0) {
@@ -31,15 +33,15 @@ const validateDonationInput = ({ countryCode, phoneNumber, donorName, address, p
                 return new ApiResponse_1.ApiResponse(400, null, "Invalid DD number");
             }
         }
-        if (!aadhar && !pan) {
-            return new ApiResponse_1.ApiResponse(422, null, "Either Aadhar or PAN number is required for donation");
-        }
     }
     if (!countryCode || !phoneNumber) {
         return new ApiResponse_1.ApiResponse(400, null, "Kindly enter the correct phone number including the country code");
     }
     if (!address || !donorName || !purpose?.trim()) {
         return new ApiResponse_1.ApiResponse(422, null, "Required fields missing: donor name, address, and purpose are mandatory");
+    }
+    if (!aadhar && !pan) {
+        return new ApiResponse_1.ApiResponse(422, null, "Either Aadhar or PAN number is required for donation");
     }
     if (!(donationCategory in types_1.DonationCategory) &&
         !donationCategory?.startsWith("OTHER")) {
@@ -55,6 +57,38 @@ const validateDonationInput = ({ countryCode, phoneNumber, donorName, address, p
     return null; // everything is valid
 };
 exports.validateDonationInput = validateDonationInput;
+const validateDonationInputIMPS = ({ purpose, amount = 0, paymentMethod = "", donationType = "", donationDate, }) => {
+    // Validate items structure
+    //validation for kind donation
+    //validation for money donation
+    if (!amount && Number(amount) <= 0) {
+        return new ApiResponse_1.ApiResponse(422, null, "Amount must be a positive number");
+    }
+    if (!(paymentMethod in types_1.PaymentMethod) &&
+        !paymentMethod?.startsWith("DD") &&
+        !paymentMethod?.startsWith("CHEQUE") &&
+        !paymentMethod?.startsWith("UPI")) {
+        return new ApiResponse_1.ApiResponse(400, null, "Invalid payment method. Valid options: CASH, UPI, DD, CHEQUE");
+    }
+    if (paymentMethod?.startsWith("DD")) {
+        const ddNumber = paymentMethod.split("-")[1];
+        if (!/^\d+$/.test(ddNumber)) {
+            return new ApiResponse_1.ApiResponse(400, null, "Invalid DD number");
+        }
+    }
+    if (!purpose?.startsWith("IMPS-")) {
+        return new ApiResponse_1.ApiResponse(422, null, "IMPS number must start with IMPS-");
+    }
+    const parsedDate = new Date(donationDate);
+    // Check if the parsed date is valid AND if the original string was a valid representation
+    // The isNaN check is sufficient for invalid date strings (e.g., "abc"),
+    // but you might want stricter parsing if specific formats are expected.
+    if (isNaN(parsedDate.getTime())) {
+        return new ApiResponse_1.ApiResponse(400, null, "Invalid date format. Please provide a valid date string (e.g., ISO 8601 format).");
+    }
+    return null; // everything is valid
+};
+exports.validateDonationInputIMPS = validateDonationInputIMPS;
 function numberToWords(num) {
     if (num === 0)
         return "zero";

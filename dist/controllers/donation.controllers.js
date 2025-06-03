@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendMessageOnMobile = exports.searchKindsDonationsByDateExcel = exports.searchDonationsByDateForExcel = exports.editKindDonation = exports.editDonation = exports.getDonationKindsList = exports.searchKindsDonorByDetails = exports.filterKindsDonation = exports.searchKindsDonationsByDate = exports.getKindsDonationById = exports.filterDonation = exports.calculateDonationsByDate = exports.searchDonationsByDate = exports.searchDonorByDetails = exports.getDonationById = exports.addDonationKinds = exports.addDonation = exports.getDonationList = void 0;
+exports.addDonationIMPS = exports.sendMessageOnMobile = exports.searchKindsDonationsByDateExcel = exports.searchDonationsByDateForExcel = exports.editKindDonation = exports.editDonation = exports.getDonationKindsList = exports.searchKindsDonorByDetails = exports.filterKindsDonation = exports.searchKindsDonationsByDate = exports.getKindsDonationById = exports.filterDonation = exports.calculateDonationsByDate = exports.searchDonationsByDate = exports.searchDonorByDetails = exports.getDonationById = exports.addDonationKinds = exports.addDonation = exports.getDonationList = void 0;
 const asyncHandler_1 = require("../utils/asyncHandler");
 const ApiResponse_1 = require("../utils/ApiResponse");
 const prismaObject_1 = __importDefault(require("../utils/prismaObject"));
@@ -79,6 +79,59 @@ const addDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         .json(new ApiResponse_1.ApiResponse(201, donation, `Donation recorded successfully, ${message}`));
 });
 exports.addDonation = addDonation;
+// ADD DONATION
+const addDonationIMPS = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const user = req.user;
+    // Extract fields from request body
+    const { purpose, amount, paymentMethod, donationDate } = req.body;
+    console.log(amount);
+    const validationError = (0, helperFunction_1.validateDonationInputIMPS)({
+        purpose,
+        amount,
+        paymentMethod,
+        donationDate,
+        donationType: "money",
+    });
+    if (validationError) {
+        return res.status(validationError.statusCode).json(validationError);
+    }
+    // Generate receipt number
+    const lastDonationPromise = await prismaObject_1.default.donation.findFirst({
+        orderBy: { id: "desc" },
+        select: { receiptNo: true }, // select only needed field for performance
+    });
+    const receiptNo = (0, helperFunction_1.receiptNoGenerator)(lastDonationPromise ? lastDonationPromise.receiptNo : "", "M");
+    // const receiptNo = lastDonation ? lastDonation.receiptNo + 1 : 1; // Increment receipt number or start with 1
+    // Create a new donation record
+    const donation = await prismaObject_1.default.donation.create({
+        data: {
+            receiptNo,
+            authorizedPersonName: "",
+            authorizedPersonId: user.id,
+            donorName: "",
+            date: new Date(donationDate),
+            countryCode: "+91",
+            aadhar: "",
+            pan: "",
+            phoneNumber: "",
+            address: "",
+            amount: Number(amount),
+            purpose,
+            paymentMethod,
+            donationCategory: "",
+        },
+    });
+    if (!donation) {
+        return res
+            .status(500) // Internal Server Error - database operation failed
+            .json(new ApiResponse_1.ApiResponse(500, null, "Failed to create donation record"));
+    }
+    // Respond with the created donation record
+    return res
+        .status(201) // Created - successful resource creation
+        .json(new ApiResponse_1.ApiResponse(201, donation, `Donation recorded successfully`));
+});
+exports.addDonationIMPS = addDonationIMPS;
 // Edit DONATION
 //////////////////////////////////////////////////////////////////
 const editDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
@@ -207,6 +260,7 @@ const searchDonorByDetails = (0, asyncHandler_1.asyncHandler)(async (req, res) =
             { aadhar: searchTerm },
             { phoneNumber: searchTerm },
             { donorName: { contains: searchTerm } },
+            { purpose: { contains: searchTerm } },
         ],
     };
     // Run both queries in parallel
@@ -262,7 +316,7 @@ const filterDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         donationCategory != "") {
         return res
             .status(422)
-            .json(new ApiResponse_1.ApiResponse(422, null, "Please provide a valid filter (SCHOOL_HOSTEL_OPERATIONS,LIFETIME_MEMBERSHIP,LIFETIME_LUNCH,IN_KIND,LAND_AND_BUILDING,OTHER)"));
+            .json(new ApiResponse_1.ApiResponse(422, null, "Please provide a valid filter (SCHOOL,MEMBERSHIP,LUNCH,IN_KIND,LAND_AND_BUILDING,OTHER)"));
     }
     if (!(paymentMethod in types_1.PaymentMethod) && paymentMethod != "") {
         return res
@@ -798,12 +852,8 @@ const filterKindsDonation = (0, asyncHandler_1.asyncHandler)(async (req, res) =>
         AND: [
             {
                 OR: [
-                    {
-                        donationCategory: {
-                            startsWith: types_1.DonationCategory[donationCategory],
-                        },
-                    },
-                    // { donationCategory: { startsWith: "OTHER" } },
+                    { donationCategory: donationCategory },
+                    { donationCategory: { startsWith: "OTHER" } },
                 ],
             },
             // {
@@ -969,6 +1019,7 @@ const searchKindsDonationsByDateExcel = (0, asyncHandler_1.asyncHandler)(async (
             },
         }),
     ]);
+    // console.log(donations);
     return res.status(200).json(new ApiResponse_1.ApiResponse(200, {
         donations,
         pagination: {
