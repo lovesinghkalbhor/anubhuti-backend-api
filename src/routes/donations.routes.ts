@@ -18,11 +18,13 @@ import {
   searchDonationsByDateForExcel,
   searchKindsDonationsByDateExcel,
   sendMessageOnMobile,
+  addDonationIMPS,
 } from "../controllers/donation.controllers";
 import { verifyJWT } from "../middleware/auth.middleware";
 const donationRouter = Router();
 
 donationRouter.route("/addDonation").post(verifyJWT, addDonation);
+donationRouter.route("/addDonationIMPS").post(verifyJWT, addDonationIMPS);
 donationRouter.route("/editDonation").post(verifyJWT, editDonation);
 donationRouter.route("/getDonation").get(verifyJWT, getDonationList);
 donationRouter.route("/getDonation/:id").get(verifyJWT, getDonationById);
@@ -55,8 +57,7 @@ donationRouter
   .route("/calculateDonationsByDate")
   .get(verifyJWT, calculateDonationsByDate);
 donationRouter.route("/filterKinds").get(verifyJWT, filterKindsDonation);
-donationRouter.route("/sendMessageOnMobile/:number").get(sendMessageOnMobile);
-
+donationRouter.route("/sendMessageOnMobile").get(sendMessageOnMobile);
 // userRouter.post("/donations/add", verifyJWT, addDonation);
 
 export { donationRouter };

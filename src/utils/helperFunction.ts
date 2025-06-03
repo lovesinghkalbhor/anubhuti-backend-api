@@ -32,6 +32,7 @@ const validateDonationInput = ({
 }): ApiResponse | null => {
   // Validate items structure
 
+  //validation for kind donation
   if (donationType == "kind") {
     if (!Array.isArray(items)) {
       return new ApiResponse(422, null, "Items must be provided as an array");
@@ -39,6 +40,8 @@ const validateDonationInput = ({
     if (!items.length) {
       return new ApiResponse(422, null, "Donation can not be empty");
     }
+
+    //validation for money donation
   } else {
     if (!amount && Number(amount) <= 0) {
       return new ApiResponse(422, null, "Amount must be a positive number");
@@ -63,14 +66,6 @@ const validateDonationInput = ({
         return new ApiResponse(400, null, "Invalid DD number");
       }
     }
-
-    if (!aadhar && !pan) {
-      return new ApiResponse(
-        422,
-        null,
-        "Either Aadhar or PAN number is required for donation"
-      );
-    }
   }
 
   if (!countryCode || !phoneNumber) {
@@ -89,6 +84,14 @@ const validateDonationInput = ({
     );
   }
 
+  if (!aadhar && !pan) {
+    return new ApiResponse(
+      422,
+      null,
+      "Either Aadhar or PAN number is required for donation"
+    );
+  }
+
   if (
     !(donationCategory in DonationCategory) &&
     !donationCategory?.startsWith("OTHER")
@@ -98,6 +101,69 @@ const validateDonationInput = ({
       "",
       "Donation Category must be valid: SCHOOL_HOSTEL_OPERATIONS, LIFETIME_MEMBERSHIP, LIFETIME_LUNCH, IN_KIND, LAND_AND_BUILDING, OTHER"
     );
+  }
+
+  const parsedDate = new Date(donationDate);
+
+  // Check if the parsed date is valid AND if the original string was a valid representation
+  // The isNaN check is sufficient for invalid date strings (e.g., "abc"),
+  // but you might want stricter parsing if specific formats are expected.
+  if (isNaN(parsedDate.getTime())) {
+    return new ApiResponse(
+      400,
+      null,
+      "Invalid date format. Please provide a valid date string (e.g., ISO 8601 format)."
+    );
+  }
+
+  return null; // everything is valid
+};
+
+const validateDonationInputIMPS = ({
+  purpose,
+  amount = 0,
+  paymentMethod = "",
+  donationType = "",
+  donationDate,
+}: {
+  purpose?: string;
+  amount?: number | string;
+  paymentMethod?: string;
+  donationType: string;
+  donationDate: Date;
+}): ApiResponse | null => {
+  // Validate items structure
+
+  //validation for kind donation
+
+  //validation for money donation
+
+  if (!amount && Number(amount) <= 0) {
+    return new ApiResponse(422, null, "Amount must be a positive number");
+  }
+
+  if (
+    !(paymentMethod in PaymentMethod) &&
+    !paymentMethod?.startsWith("DD") &&
+    !paymentMethod?.startsWith("CHEQUE") &&
+    !paymentMethod?.startsWith("UPI")
+  ) {
+    return new ApiResponse(
+      400,
+      null,
+      "Invalid payment method. Valid options: CASH, UPI, DD, CHEQUE"
+    );
+  }
+
+  if (paymentMethod?.startsWith("DD")) {
+    const ddNumber = paymentMethod.split("-")[1];
+    if (!/^\d+$/.test(ddNumber)) {
+      return new ApiResponse(400, null, "Invalid DD number");
+    }
+  }
+
+  if (!purpose?.startsWith("IMPS-")) {
+    return new ApiResponse(422, null, "IMPS number must start with IMPS-");
   }
 
   const parsedDate = new Date(donationDate);
@@ -226,4 +292,5 @@ export {
   filteredMissingFieldsObjectFromItems,
   numberToWords,
   validateDonationInput,
+  validateDonationInputIMPS,
 };

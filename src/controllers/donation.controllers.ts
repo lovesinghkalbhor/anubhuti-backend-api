@@ -7,6 +7,7 @@ import {
   filteredMissingFieldsObjectFromItems,
   receiptNoGenerator,
   validateDonationInput,
+  validateDonationInputIMPS,
 } from "../utils/helperFunction";
 import {
   DonationCategory,
@@ -116,6 +117,78 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
         donation,
 
         `Donation recorded successfully, ${message}`
+      )
+    );
+});
+// ADD DONATION
+const addDonationIMPS = asyncHandler(async (req: Request, res: Response) => {
+  const user = (req as Request & { user: any }).user;
+
+  // Extract fields from request body
+  const { purpose, amount, paymentMethod, donationDate } = req.body;
+
+  console.log(amount);
+  const validationError = validateDonationInputIMPS({
+    purpose,
+    amount,
+    paymentMethod,
+    donationDate,
+
+    donationType: "money",
+  });
+
+  if (validationError) {
+    return res.status(validationError.statusCode).json(validationError);
+  }
+
+  // Generate receipt number
+  const lastDonationPromise = await prisma.donation.findFirst({
+    orderBy: { id: "desc" },
+    select: { receiptNo: true }, // select only needed field for performance
+  });
+
+  const receiptNo = receiptNoGenerator(
+    lastDonationPromise ? lastDonationPromise.receiptNo : "",
+    "M"
+  );
+  // const receiptNo = lastDonation ? lastDonation.receiptNo + 1 : 1; // Increment receipt number or start with 1
+
+  // Create a new donation record
+  const donation = await prisma.donation.create({
+    data: {
+      receiptNo,
+      authorizedPersonName: "",
+      authorizedPersonId: user.id,
+      donorName: "",
+      date: new Date(donationDate),
+      countryCode: "+91",
+      aadhar: "",
+      pan: "",
+      phoneNumber: "",
+      address: "",
+      amount: Number(amount),
+      purpose,
+      paymentMethod,
+      donationCategory: "",
+    },
+  });
+
+  if (!donation) {
+    return res
+      .status(500) // Internal Server Error - database operation failed
+      .json(new ApiResponse(500, null, "Failed to create donation record"));
+  }
+
+  // Respond with the created donation record
+
+  return res
+    .status(201) // Created - successful resource creation
+    .json(
+      new ApiResponse(
+        201,
+        donation,
+
+        `Donation recorded successfully`
       )
     );
 });
@@ -296,6 +369,7 @@ const searchDonorByDetails = asyncHandler(
         { aadhar: searchTerm },
         { phoneNumber: searchTerm },
         { donorName: { contains: searchTerm } },
+        { purpose: { contains: searchTerm } },
       ],
     };
 
@@ -368,7 +442,7 @@ const filterDonation = asyncHandler(async (req: Request, res: Response) => {
         new ApiResponse(
           422,
           null,
-          "Please provide a valid filter (SCHOOL_HOSTEL_OPERATIONS,LIFETIME_MEMBERSHIP,LIFETIME_LUNCH,IN_KIND,LAND_AND_BUILDING,OTHER)"
+          "Please provide a valid filter (SCHOOL,MEMBERSHIP,LUNCH,IN_KIND,LAND_AND_BUILDING,OTHER)"
         )
       );
   }
@@ -1160,15 +1234,8 @@ const filterKindsDonation = asyncHandler(
       AND: [
         {
           OR: [
-            {
-              donationCategory: {
-                startsWith:
-                  DonationCategory[
-                    donationCategory as keyof typeof DonationCategory
-                  ],
-              },
-            },
-            // { donationCategory: { startsWith: "OTHER" } },
+            { donationCategory: donationCategory as string },
+            { donationCategory: { startsWith: "OTHER" } },
           ],
         },
         // {
@@ -1404,6 +1471,7 @@ const searchKindsDonationsByDateExcel = asyncHandler(
       }),
     ]);
 
+    // console.log(donations);
     return res.status(200).json(
       new ApiResponse(
         200,
@@ -1481,4 +1549,5 @@ export {
   searchDonationsByDateForExcel,
   searchKindsDonationsByDateExcel,
   sendMessageOnMobile,
+  addDonationIMPS,
 };
