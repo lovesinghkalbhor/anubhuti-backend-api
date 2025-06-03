@@ -157,7 +157,7 @@ const addDonationIMPS = asyncHandler(async (req: Request, res: Response) => {
   const donation = await prisma.donation.create({
     data: {
       receiptNo,
-      authorizedPersonName: "",
+      authorizedPersonName: user.name,
       authorizedPersonId: user.id,
       donorName: "",
       date: new Date(donationDate),
