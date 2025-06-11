@@ -59,6 +59,13 @@ const validateDonationInput = ({
         "Invalid payment method. Valid options: CASH, UPI, DD, CHEQUE"
       );
     }
+    if (!aadhar && !pan) {
+      return new ApiResponse(
+        422,
+        null,
+        "Either  Aadhar or PAN number is required for donation"
+      );
+    }
 
     if (paymentMethod?.startsWith("DD")) {
       const ddNumber = paymentMethod.split("-")[1];
@@ -68,6 +75,7 @@ const validateDonationInput = ({
     }
   }
 
+  //  money validation ends here
   if (!countryCode || !phoneNumber) {
     return new ApiResponse(
       400,
@@ -81,14 +89,6 @@ const validateDonationInput = ({
       422,
       null,
       "Required fields missing: donor name, address, and purpose are mandatory"
-    );
-  }
-
-  if (!aadhar && !pan) {
-    return new ApiResponse(
-      422,
-      null,
-      "Either Aadhar or PAN number is required for donation"
     );
   }
 
@@ -118,7 +118,6 @@ const validateDonationInput = ({
 
   return null; // everything is valid
 };
-
 const validateDonationInputIMPS = ({
   purpose,
   amount = 0,
