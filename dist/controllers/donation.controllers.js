@@ -493,6 +493,8 @@ const searchDonationsByDateForExcel = (0, asyncHandler_1.asyncHandler)(async (re
                 aadhar: true,
                 pan: true,
                 paymentMethod: true,
+                purpose: true,
+                donationCategory: true,
                 amount: true,
             },
         }),
@@ -1014,6 +1016,8 @@ const searchKindsDonationsByDateExcel = (0, asyncHandler_1.asyncHandler)(async (
                 phoneNumber: true,
                 aadhar: true,
                 pan: true,
+                purpose: true,
+                donationCategory: true,
                 items: true, // Optional: exclude if heavy
                 _count: { select: { items: true } },
             },
