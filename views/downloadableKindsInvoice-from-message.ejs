@@ -206,7 +206,8 @@
                 </tr>
               </thead>
               <tbody>
-                <% donation.items.forEach(item => { %>
+                <% let totalAmount = 0; donation.items.forEach(item => {
+                totalAmount += parseFloat(item.approxAmount || 0); %>
                 <tr>
                   <td><%= item.name %></td>
                   <td><%= item.quantity %></td>
@@ -214,6 +215,13 @@
                 </tr>
                 <% }); %>
               </tbody>
+              <tfoot>
+                <tr>
+                  <td>Total</td>
+                  <td></td>
+                  <td>₹<%= totalAmount.toFixed(2) %></td>
+                </tr>
+              </tfoot>
             </table>
           </div>
 

@@ -690,24 +690,37 @@ const searchDonationsByDateForExcel = asyncHandler(
 
     // 🧠 Parallel DB calls using Promise.all
     const [donations, totalDonations] = await Promise.all([
-      prisma.donation.findMany({
-        where: whereClause,
-        orderBy: { id: "desc" },
-        select: {
-          id: true,
-          receiptNo: true,
-          authorizedPersonName: true,
-          date: true,
-          donorName: true,
-          phoneNumber: true,
-          aadhar: true,
-          pan: true,
-          paymentMethod: true,
-          purpose: true,
-          donationCategory: true,
-          amount: true,
-        },
-      }),
+      prisma.$queryRaw<
+        Array<{
+          receiptNo: string;
+          authorizedPersonName: string;
+          date: string;
+          donorName: string;
+          phoneNumber: string;
+          aadhar: string | null;
+          pan: string | null;
+          paymentMethod: string;
+          purpose: string;
+          donationCategory: string;
+          amount: number | null;
+        }>
+      >`
+        SELECT 
+          receiptNo,
+          authorizedPersonName,
+          DATE_FORMAT(date, '%d/%m/%Y') as date,
+          donorName,
+          phoneNumber,
+          aadhar,
+          pan,
+          paymentMethod,
+          purpose,
+          donationCategory,
+          amount
+        FROM Donation 
+        WHERE date >= ${start} AND date <= ${end}
+        ORDER BY id DESC
+      `,
       prisma.donation.count({ where: whereClause }),
     ]);
 
@@ -1454,25 +1467,43 @@ const searchKindsDonationsByDateExcel = asyncHandler(
     // Execute count and query in parallel
     const [totalItems, donations] = await Promise.all([
       prisma.donationKinds.count({ where: whereClause }),
-      prisma.donationKinds.findMany({
-        where: whereClause,
-        orderBy: { id: "desc" },
-        select: {
-          id: true,
-          receiptNo: true,
-          authorizedPersonName: true,
-          date: true,
-          donorName: true,
-          phoneNumber: true,
-          aadhar: true,
-          pan: true,
-          purpose: true,
-          donationCategory: true,
-          items: true, // Optional: exclude if heavy
-
-          _count: { select: { items: true } },
-        },
-      }),
+      prisma.$queryRaw<
+        Array<{
+          receiptNo: string;
+          authorizedPersonName: string;
+          date: string;
+          donorName: string;
+          phoneNumber: string;
+          aadhar: string | null;
+          pan: string | null;
+          purpose: string;
+          donationCategory: string;
+          items: any[];
+        }>
+      >`
+        SELECT 
+          dk.receiptNo,
+          dk.authorizedPersonName,
+          DATE_FORMAT(dk.date, '%d/%m/%Y') as date,
+          dk.donorName,
+          dk.phoneNumber,
+          dk.aadhar,
+          dk.pan,
+          dk.purpose,
+          dk.donationCategory,
+          JSON_ARRAYAGG(
+            JSON_OBJECT(
+              'name', i.name,
+              'quantity', i.quantity,
+              'approxAmount', i.approxAmount
+            )
+          ) as items
+        FROM DonationKinds dk
+        LEFT JOIN Item i ON dk.id = i.donationId
+        WHERE dk.date >= ${start} AND dk.date <= ${end}
+        GROUP BY dk.id, dk.receiptNo, dk.authorizedPersonName, dk.date, dk.donorName, dk.phoneNumber, dk.aadhar, dk.pan, dk.purpose, dk.donationCategory
+        ORDER BY dk.id DESC
+      `,
     ]);
 
     // console.log(donations);
