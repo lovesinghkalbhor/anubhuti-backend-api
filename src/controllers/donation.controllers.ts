@@ -15,10 +15,9 @@ import {
   SearchPaginationParams,
 } from "../types/types";
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////
-
 // ADD DONATION
+///////////////////////////////////////////////////////////////////////////////////
+
 const addDonation = asyncHandler(async (req: Request, res: Response) => {
   const user = (req as Request & { user: any }).user;
 
@@ -78,6 +77,7 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
       authorizedPersonId: user.id,
       donorName,
       date: new Date(donationDate),
+      createdAt: new Date().toISOString(),
       countryCode,
       aadhar: String(aadhar),
       pan: String(pan),
@@ -120,7 +120,9 @@ const addDonation = asyncHandler(async (req: Request, res: Response) => {
       )
     );
 });
-// ADD DONATION
+
+// ADD DONATION IMPS
+////////////////////////////////////////////////////////////////////
 const addDonationIMPS = asyncHandler(async (req: Request, res: Response) => {
   const user = (req as Request & { user: any }).user;
 
@@ -246,10 +248,14 @@ const editDonation = asyncHandler(async (req: Request, res: Response) => {
   const updatedDonation = await prisma.donation.update({
     where: { id: Number(donationId) },
     data: {
-      authorizedPersonName: user.name,
-      authorizedPersonId: user.id,
-      donorName,
+      // authorizedPersonName: user.name,
+      updatedByPersonName: user.name,
+      updatedByPersonId: user.id,
+
       date: new Date(donationDate),
+      updatedAt: new Date().toISOString(),
+
+      donorName,
       aadhar,
       countryCode,
       pan,
@@ -283,6 +289,7 @@ const editDonation = asyncHandler(async (req: Request, res: Response) => {
     .json(new ApiResponse(200, {}, `Donation updated successfully,${message}`));
 });
 
+// helper function
 ////////////////////////////////////////////////////////////////////////////
 const getPaginationParams = (query: any): SearchPaginationParams => {
   const page = Math.max(1, parseInt(query.page as string) || 1);
@@ -295,6 +302,7 @@ const getPaginationParams = (query: any): SearchPaginationParams => {
 };
 
 // GET DONATION LIST
+////////////////////////////////////////////////////////////////////////
 const getDonationList = asyncHandler(async (req: Request, res: Response) => {
   // Extract pagination parameters with defaults
   const { page, limit, skip } = getPaginationParams(req.query);
@@ -309,8 +317,11 @@ const getDonationList = asyncHandler(async (req: Request, res: Response) => {
       select: {
         id: true,
         receiptNo: true,
-        authorizedPersonName: true,
         date: true,
+        authorizedPersonName: true,
+        updatedByPersonName: true,
+        createdAt: true,
+        updatedAt: true,
         donorName: true,
         phoneNumber: true,
         aadhar: true,
@@ -342,8 +353,9 @@ const getDonationList = asyncHandler(async (req: Request, res: Response) => {
     )
   );
 });
-//////////////////////////////////////////////////////////////////////
 
+// search donation
+//////////////////////////////////////////////////////////////////////
 const searchDonorByDetails = asyncHandler(
   async (req: Request, res: Response) => {
     const { search } = req.query;
@@ -385,7 +397,10 @@ const searchDonorByDetails = asyncHandler(
           id: true,
           receiptNo: true,
           authorizedPersonName: true,
+          updatedByPerson: true,
           date: true,
+          createdAt: true,
+          updatedAt: true,
           donorName: true,
           phoneNumber: true,
           aadhar: true,
@@ -420,8 +435,9 @@ const searchDonorByDetails = asyncHandler(
     );
   }
 );
-/////////////////////////////////////////////////////////////////
 
+// filter donation
+/////////////////////////////////////////////////////////////////
 const filterDonation = asyncHandler(async (req: Request, res: Response) => {
   const { paymentMethod = "", donationCategory = "" } = req.query;
   const { page, limit, skip } = getPaginationParams(req.query);
@@ -496,7 +512,10 @@ const filterDonation = asyncHandler(async (req: Request, res: Response) => {
         id: true,
         receiptNo: true,
         authorizedPersonName: true,
+        updatedByPerson: true,
         date: true,
+        createdAt: true,
+        updatedAt: true,
         donorName: true,
         phoneNumber: true,
         aadhar: true,
@@ -529,8 +548,8 @@ const filterDonation = asyncHandler(async (req: Request, res: Response) => {
   );
 });
 
+// search by date
 ///////////////////////////////////////////////////////////////
-
 const searchDonationsByDate = asyncHandler(
   async (req: Request, res: Response) => {
     const { startDate, endDate } = req.query;
@@ -596,7 +615,10 @@ const searchDonationsByDate = asyncHandler(
           id: true,
           receiptNo: true,
           authorizedPersonName: true,
+          updatedByPerson: true,
           date: true,
+          createdAt: true,
+          updatedAt: true,
           donorName: true,
           phoneNumber: true,
           aadhar: true,
@@ -632,8 +654,8 @@ const searchDonationsByDate = asyncHandler(
   }
 );
 
+// data for excel
 //////////////////////////////////////////////////////////////////
-
 const searchDonationsByDateForExcel = asyncHandler(
   async (req: Request, res: Response) => {
     const { startDate, endDate } = req.query;
@@ -695,6 +717,11 @@ const searchDonationsByDateForExcel = asyncHandler(
           receiptNo: string;
           authorizedPersonName: string;
           date: string;
+
+          updatedByPersonName: string;
+          createdAt: string;
+          updatedAt: string;
+
           donorName: string;
           phoneNumber: string;
           aadhar: string | null;
@@ -708,7 +735,10 @@ const searchDonationsByDateForExcel = asyncHandler(
         SELECT 
           receiptNo,
           authorizedPersonName,
+          updatedByPersonName,
           DATE_FORMAT(date, '%d/%m/%Y') as date,
+          DATE_FORMAT(createdAt, '%d/%m/%Y') as createdAt,
+          DATE_FORMAT(updatedAt, '%d/%m/%Y') as updatedAt,
           donorName,
           phoneNumber,
           aadhar,
@@ -748,8 +778,8 @@ const searchDonationsByDateForExcel = asyncHandler(
   }
 );
 
+// total donation calculation
 ////////////////////////////////////////////////////////
-
 const calculateDonationsByDate = asyncHandler(
   async (req: Request, res: Response) => {
     const { startDate, endDate } = req.query;
@@ -827,9 +857,8 @@ const calculateDonationsByDate = asyncHandler(
   }
 );
 
-////////////////////////////////////////////////////////
-
 // GET DONATION BY ID
+////////////////////////////////////////////////////////
 const getDonationById = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const donation = await prisma.donation.findUnique({
@@ -906,6 +935,8 @@ const addDonationKinds = asyncHandler(async (req: Request, res: Response) => {
       receiptNo,
       authorizedPersonName: user.name,
       authorizedPersonId: user.id,
+      createdAt: new Date().toISOString(),
+
       donorName,
       countryCode,
       date: new Date(donationDate),
@@ -1017,11 +1048,16 @@ const editKindDonation = asyncHandler(async (req: Request, res: Response) => {
   const updatedDonation = await prisma.donationKinds.update({
     where: { id: Number(donationId) },
     data: {
-      authorizedPersonName: user.name,
-      authorizedPersonId: user.id,
+      // authorizedPersonName: user.name,
+      // authorizedPersonId: user.id,
+      updatedByPersonName: user.name,
+      updatedByPersonId: user.id,
+
+      date: new Date(donationDate),
+      updatedAt: new Date().toISOString(),
+
       donorName,
       countryCode,
-      date: new Date(donationDate),
       aadhar: String(aadhar),
       pan: String(pan),
       phoneNumber: String(phoneNumber),
@@ -1071,9 +1107,8 @@ const editKindDonation = asyncHandler(async (req: Request, res: Response) => {
     );
 });
 
-//////////////////////////////////////////////////////////////////////////////////////
-
 // GET kinds DONATION LIST
+//////////////////////////////////////////////////////////////////////////////////////
 const getDonationKindsList = asyncHandler(
   async (req: Request, res: Response) => {
     // Extract pagination parameters with defaults
@@ -1090,7 +1125,10 @@ const getDonationKindsList = asyncHandler(
           id: true,
           receiptNo: true,
           authorizedPersonName: true,
+          updatedByPersonName: true,
           date: true,
+          createdAt: true,
+          updatedAt: true,
           donorName: true,
           phoneNumber: true,
           aadhar: true,
@@ -1124,9 +1162,8 @@ const getDonationKindsList = asyncHandler(
   }
 );
 
-//////////////////////////////////////////////////////////
-
 // kinds Donation search list
+//////////////////////////////////////////////////////////
 const searchKindsDonorByDetails = asyncHandler(
   async (req: Request, res: Response) => {
     const { search } = req.query;
@@ -1168,7 +1205,10 @@ const searchKindsDonorByDetails = asyncHandler(
           id: true,
           receiptNo: true,
           authorizedPersonName: true,
+          updatedByPersonName: true,
           date: true,
+          createdAt: true,
+          updatedAt: true,
           donorName: true,
           phoneNumber: true,
           aadhar: true,
@@ -1203,9 +1243,8 @@ const searchKindsDonorByDetails = asyncHandler(
   }
 );
 
-///////////////////////////////////////////////////////////////
-
 // filter kind donations
+///////////////////////////////////////////////////////////////
 const filterKindsDonation = asyncHandler(
   async (req: Request, res: Response) => {
     const { paymentMethod = "", donationCategory = "" } = req.query;
@@ -1273,7 +1312,10 @@ const filterKindsDonation = asyncHandler(
           id: true,
           receiptNo: true,
           authorizedPersonName: true,
+          updatedByPersonName: true,
           date: true,
+          createdAt: true,
+          updatedAt: true,
           donorName: true,
           phoneNumber: true,
           aadhar: true,
@@ -1307,9 +1349,9 @@ const filterKindsDonation = asyncHandler(
     );
   }
 );
-///////////////////////////////////////////////////////////
 
 // search kinds donation
+///////////////////////////////////////////////////////////
 const searchKindsDonationsByDate = asyncHandler(
   async (req: Request, res: Response) => {
     const { startDate, endDate } = req.query;
@@ -1376,7 +1418,10 @@ const searchKindsDonationsByDate = asyncHandler(
           id: true,
           receiptNo: true,
           authorizedPersonName: true,
+          updatedByPersonName: true,
           date: true,
+          createdAt: true,
+          updatedAt: true,
           donorName: true,
           phoneNumber: true,
           aadhar: true,
@@ -1410,7 +1455,9 @@ const searchKindsDonationsByDate = asyncHandler(
     );
   }
 );
+
 // search kinds donation
+//////////////////////////////////////////////////////////////
 const searchKindsDonationsByDateExcel = asyncHandler(
   async (req: Request, res: Response) => {
     const { startDate, endDate } = req.query;
@@ -1467,46 +1514,32 @@ const searchKindsDonationsByDateExcel = asyncHandler(
     // Execute count and query in parallel
     const [totalItems, donations] = await Promise.all([
       prisma.donationKinds.count({ where: whereClause }),
-      prisma.$queryRaw<
-        Array<{
-          receiptNo: string;
-          authorizedPersonName: string;
-          date: string;
-          donorName: string;
-          phoneNumber: string;
-          aadhar: string | null;
-          pan: string | null;
-          purpose: string;
-          donationCategory: string;
-          items: any[];
-        }>
-      >`
-        SELECT 
-          dk.receiptNo,
-          dk.authorizedPersonName,
-          DATE_FORMAT(dk.date, '%d/%m/%Y') as date,
-          dk.donorName,
-          dk.phoneNumber,
-          dk.aadhar,
-          dk.pan,
-          dk.purpose,
-          dk.donationCategory,
-          JSON_ARRAYAGG(
-            JSON_OBJECT(
-              'name', i.name,
-              'quantity', i.quantity,
-              'approxAmount', i.approxAmount
-            )
-          ) as items
-        FROM DonationKinds dk
-        LEFT JOIN Item i ON dk.id = i.donationId
-        WHERE dk.date >= ${start} AND dk.date <= ${end}
-        GROUP BY dk.id, dk.receiptNo, dk.authorizedPersonName, dk.date, dk.donorName, dk.phoneNumber, dk.aadhar, dk.pan, dk.purpose, dk.donationCategory
-        ORDER BY dk.id DESC
-      `,
+      prisma.donationKinds.findMany({
+        where: whereClause,
+        // include: { items: true },
+        select: {
+          // id: true,
+          receiptNo: true,
+          date: true,
+          createdAt: true,
+
+          authorizedPersonName: true,
+
+          donorName: true,
+          aadhar: true,
+          pan: true,
+          phoneNumber: true,
+          address: true,
+          purpose: true,
+          donationCategory: true,
+
+          items: true, // Optional: exclude if heavy
+          _count: { select: { items: true } },
+        },
+        orderBy: { id: "desc" },
+      }),
     ]);
 
-    // console.log(donations);
     return res.status(200).json(
       new ApiResponse(
         200,
@@ -1528,8 +1561,12 @@ const searchKindsDonationsByDateExcel = asyncHandler(
   }
 );
 
-/////////////////////////////////////////////////////////
+function formatDate(date: Date | string | null | undefined): string {
+  if (!date) return "";
+  return date.toLocaleString();
+}
 // GET DONATION BY ID
+/////////////////////////////////////////////////////////
 const getKindsDonationById = asyncHandler(
   async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -1552,6 +1589,8 @@ const getKindsDonationById = asyncHandler(
   }
 );
 
+// helper function
+/////////////////////////////////////////////////////////
 const sendMessageOnMobile = asyncHandler(
   async (req: Request, res: Response) => {
     const { number } = req.params;

@@ -18,17 +18,28 @@ model User {
   refreshToken   String?
   created_at     DateTime        @default(now())
   // Relationship with Donation
-  donations      Donation[]
-  donationsKinds DonationKinds[]
+  donations      Donation[] @relation("AuthorizedPerson")
+  donationsUpdated      Donation[] @relation("UpdatedPerson")
+
+  donationsKinds DonationKinds[]  @relation("AuthorizedPerson")
+  donationsKindsUpdate DonationKinds[] @relation("UpdatedPerson")
 }
 
 model Donation {
   id                   Int      @id @default(autoincrement())
   receiptNo            String
+  
   date                 DateTime @default(now())
-  authorizedPerson     User     @relation(fields: [authorizedPersonId], references: [id])
+  createdAt DateTime?  
+  updatedAt DateTime?  @updatedAt
+
+  authorizedPerson User  @relation("AuthorizedPerson",fields: [authorizedPersonId], references: [id])
   authorizedPersonName String
   authorizedPersonId   Int
+
+  updatedByPerson User?  @relation("UpdatedPerson",fields: [updatedByPersonId], references: [id])
+  updatedByPersonId Int? 
+  updatedByPersonName String?  
 
   donorName   String
   aadhar      String?
@@ -49,20 +60,27 @@ model DonationKinds {
   id                   Int      @id @default(autoincrement())
   receiptNo            String   @unique
   date                 DateTime @default(now())
-  authorizedPerson     User     @relation(fields: [authorizedPersonId], references: [id])
+  
+  createdAt DateTime?  
+  updatedAt DateTime?  @updatedAt
+
+  authorizedPerson     User     @relation("AuthorizedPerson",fields: [authorizedPersonId], references: [id])
   authorizedPersonName String
   authorizedPersonId   Int
+
+  updatedByPerson User?  @relation("UpdatedPerson",fields: [updatedByPersonId], references: [id])
+  updatedByPersonId  Int?  
+  updatedByPersonName String?
 
   donorName   String
   aadhar      String?
   pan         String?
   phoneNumber String
+  address String
   countryCode String  @default("+91")
 
-  address String
 
   items Item[] // Array of items donated (if it's an item donation)
-
   donationCategory String @default("OTHER") // Provide a default value
   purpose          String
   websiteDetails   String @default("anubhuti.com")

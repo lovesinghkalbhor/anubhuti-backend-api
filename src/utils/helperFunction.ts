@@ -118,6 +118,7 @@ const validateDonationInput = ({
 
   return null; // everything is valid
 };
+
 const validateDonationInputIMPS = ({
   purpose,
   amount = 0,
