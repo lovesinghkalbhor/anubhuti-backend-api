@@ -40,7 +40,7 @@ const viewInvoice = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         donation: results,
         amountInWords: (0, helperFunction_1.numberToWords)(results?.amount || 0),
         formattedName: formattedName(results?.authorizedPersonName || ""),
-        downloadUrl: process.env.DOWNLOAD_RECEIPT_URL,
+        BASE_PUBLIC_URL: process.env.BASE_PUBLIC_URL,
     });
 });
 exports.viewInvoice = viewInvoice;
@@ -72,7 +72,7 @@ const viewkindInvoice = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     res.render("kindinvoice", {
         donation: results,
         formattedName: formattedName(results?.authorizedPersonName || ""),
-        downloadUrl: process.env.DOWNLOAD_RECEIPT_URL,
+        BASE_PUBLIC_URL: process.env.BASE_PUBLIC_URL,
     });
 });
 exports.viewkindInvoice = viewkindInvoice;
@@ -102,7 +102,7 @@ const DownloadInvoice = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         donation: results,
         amountInWords: (0, helperFunction_1.numberToWords)(results?.amount || 0),
         formattedName: formattedName(results?.authorizedPersonName || ""),
-        downloadUrl: process.env.DOWNLOAD_RECEIPT_URL,
+        BASE_PUBLIC_URL: process.env.BASE_PUBLIC_URL,
     });
 });
 exports.DownloadInvoice = DownloadInvoice;
@@ -134,7 +134,7 @@ const DownloadKindsInvoice = (0, asyncHandler_1.asyncHandler)(async (req, res) =
     res.render("downloadableKindsInvoice", {
         donation: results,
         formattedName: formattedName(results?.authorizedPersonName || ""),
-        downloadUrl: process.env.DOWNLOAD_RECEIPT_URL,
+        BASE_PUBLIC_URL: process.env.BASE_PUBLIC_URL,
     });
 });
 exports.DownloadKindsInvoice = DownloadKindsInvoice;
@@ -164,7 +164,7 @@ const DownloadInvoiceMobile = (0, asyncHandler_1.asyncHandler)(async (req, res) 
         donation: results,
         amountInWords: (0, helperFunction_1.numberToWords)(results?.amount || 0),
         formattedName: formattedName(results?.authorizedPersonName || ""),
-        downloadUrl: process.env.DOWNLOAD_RECEIPT_URL_MONEY,
+        BASE_PUBLIC_URL: process.env.BASE_PUBLIC_URL,
     });
 });
 exports.DownloadInvoiceMobile = DownloadInvoiceMobile;
@@ -196,7 +196,7 @@ const DownloadKindsInvoiceMobile = (0, asyncHandler_1.asyncHandler)(async (req, 
     res.render("downloadableKindsInvoice-from-message", {
         donation: results,
         formattedName: formattedName(results?.authorizedPersonName || ""),
-        downloadUrl: process.env.DOWNLOAD_RECEIPT_URL_KIND,
+        BASE_PUBLIC_URL: process.env.BASE_PUBLIC_URL,
     });
 });
 exports.DownloadKindsInvoiceMobile = DownloadKindsInvoiceMobile;

@@ -154,18 +154,13 @@
     <div id="container">
       <div class="a4-page">
         <div class="letter">
-          <img src="https://anubhutivisionss.com/images/letter.jpg" alt="" />
+          <img src="<%= BASE_PUBLIC_URL %>/images/letter.jpg" alt="" />
         </div>
       </div>
       <div class="a4-page">
         <div class="header">
           <div class="logo">
-            <!-- <img src="http://localhost:3000/images/AnubhutiLogo.png" alt="" /> -->
-            <!-- for server -->
-            <img
-              src="https://anubhutivisionss.com/images/AnubhutiLogo.png"
-              alt=""
-            />
+            <img src="<%= BASE_PUBLIC_URL %>/images/AnubhutiLogo.png" alt="" />
           </div>
           <div class="org-details">
             <div class="reg-number">
@@ -287,7 +282,7 @@
       const handleConvertToPDF = (id) => {
         console.log(id);
         fetch(
-          `https://anubhutivisionss.com/api/v1/viewInvoice/downloadKindsInvoice-message?id=${id}`,
+          `<%= BASE_PUBLIC_URL %>/api/v1/viewInvoice/downloadKindsInvoice-message?id=${id}`,
           {
             method: "GET",
           }

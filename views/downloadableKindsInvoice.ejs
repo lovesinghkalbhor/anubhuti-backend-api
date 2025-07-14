@@ -151,12 +151,7 @@
   <body>
     <div class="header">
       <div class="logo">
-        <!-- <img src="http://localhost:3000/images/AnubhutiLogo.png" alt="" /> -->
-        <!-- for server -->
-        <img
-          src="https://anubhutivisionss.com/images/AnubhutiLogo.png"
-          alt=""
-        />
+        <img src="<%= BASE_PUBLIC_URL %>/images/AnubhutiLogo.png" alt="" />
       </div>
       <div class="org-details">
         <div class="reg-number">
@@ -233,11 +228,6 @@
 
       <div class="signature-section">
         <div>
-          <!-- <div style="text-align: left">
-            <label>Payment Mode : </label>
-            <span><%=donation.paymentMethod %></span>
-          </div> -->
-
           <div style="text-align: left">
             <div>
               <label>Accountant / Authorised Person :</label>
@@ -267,24 +257,6 @@
       </div>
     </form>
 
-    <!-- <button
-      onclick="downloadPDFButton(`<%= downloadUrl %>`, `<%= donation.receiptNo %>`)"
-    >
-      Download as PDF
-    </button> -->
-
-    <!-- <script>
-      async function downloadPDFButton(downloadUrl, receiptNo) {
-        console.log(downloadUrl);
-        const pdfUrl = `${downloadUrl}=${receiptNo}`; // Replace with your PDF URL
-        const anchor = document.createElement("a");
-        anchor.href = pdfUrl;
-        // Append the anchor to the document, trigger the click, then remove it
-        document.body.appendChild(anchor);
-        anchor.click();
-        document.body.removeChild(anchor);
-      }
-    </script> -->
     <script>
       function capitalizeFirstLetter(text) {
         if (!text) {
