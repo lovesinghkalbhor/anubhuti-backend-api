@@ -1589,7 +1589,7 @@ const getKindsDonationById = asyncHandler(
   }
 );
 
-// this is helper function
+// is helper function
 /////////////////////////////////////////////////////////
 const sendMessageOnMobile = asyncHandler(
   async (req: Request, res: Response) => {
