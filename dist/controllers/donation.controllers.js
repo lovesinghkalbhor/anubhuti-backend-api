@@ -1110,7 +1110,7 @@ exports.getKindsDonationById = getKindsDonationById;
 /////////////////////////////////////////////////////////
 const sendMessageOnMobile = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const { number } = req.params;
-    await (0, sendingSMS_1.sendMessage)("Thank you for contacting Anubhuti vision seva sansthan, an organization that has been working for disabled children for over 15 years. We warmly invite you to visit us, bless us with your presence, guide us with your wisdom, and support us in our mission for humanity.", number).catch((err) => {
+    await (0, sendingSMS_1.sendMessage)("Thanks for contacting Anubhuti Vision Sewa Sansthan to shower your blessings on SPECIAL CHILDREN We warmly invite you to visit again to serve humanity.", number).catch((err) => {
         "Message sending failed";
         console.error("Message sending failed:", err);
     });
