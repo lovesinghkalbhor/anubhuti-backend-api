@@ -1106,7 +1106,7 @@ const getKindsDonationById = (0, asyncHandler_1.asyncHandler)(async (req, res) =
         .json(new ApiResponse_1.ApiResponse(200, donation, "Donation retrieved successfully"));
 });
 exports.getKindsDonationById = getKindsDonationById;
-// helper function
+//  is helper function
 /////////////////////////////////////////////////////////
 const sendMessageOnMobile = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const { number } = req.params;
