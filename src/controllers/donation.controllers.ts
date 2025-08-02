@@ -1595,7 +1595,7 @@ const sendMessageOnMobile = asyncHandler(
   async (req: Request, res: Response) => {
     const { number } = req.params;
     await sendMessage(
-      "Thank you for contacting Anubhuti vision seva sansthan, an organization that has been working for disabled children for over 15 years. We warmly invite you to visit us, bless us with your presence, guide us with your wisdom, and support us in our mission for humanity.",
+      "Thanks for contacting Anubhuti Vision Sewa Sansthan to shower your blessings on SPECIAL CHILDREN We warmly invite you to visit again to serve humanity.",
       number
     ).catch((err) => {
       "Message sending failed";

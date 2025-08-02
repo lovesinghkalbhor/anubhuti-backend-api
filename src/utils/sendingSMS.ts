@@ -16,7 +16,7 @@ export async function sendMessage(
 ): Promise<void> {
   const message = await client.messages.create({
     body: messageString,
-    from: "+17726751887", // Replace with your Twilio phone number
+    from: "+17726751887", //Replace wd your Twilio phone number
     to: String(mobile), // Replace with the recipient's phone number
   });
 }
