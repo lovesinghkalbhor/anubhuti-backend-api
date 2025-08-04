@@ -3,7 +3,6 @@ import cors from "cors";
 import cookieparser from "cookie-parser";
 import { ApiResponse } from "./utils/ApiResponse";
 import path from "path";
-
 const app = express();
 
 app.use(
